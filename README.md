@@ -1,46 +1,155 @@
-![Banner image](https://user-images.githubusercontent.com/10284570/173569848-c624317f-42b1-45a6-ab09-f0ea3c247648.png)
+# n8n-nodes-pandadoc
 
-# n8n-nodes-starter
+![PandaDoc Logo](https://cdn-assets.pandadoc.com/media/assets/logo.6b381b6.svg)
 
-This repo contains example nodes to help you get started building your own custom integrations for [n8n](n8n.io). It includes the node linter and other dependencies.
+This package contains n8n nodes to integrate with the [PandaDoc](https://www.pandadoc.com/) API, allowing you to automate document workflows, e-signatures, and manage contracts within your n8n workflows.
 
-To make your custom node available to the community, you must create it as an npm package, and [submit it to the npm registry](https://docs.npmjs.com/packages-and-modules/contributing-packages-to-the-registry).
+## Overview
 
-## Prerequisites
+[PandaDoc](https://www.pandadoc.com/) is a document automation platform that helps you streamline your sales documents, create, send, track, and e-sign documents. This n8n integration provides the following nodes:
 
-You need the following installed on your development machine:
+- **PandaDoc**: For creating, managing, and tracking documents, templates, contacts, and folders
+- **PandaDoc Trigger**: For triggering workflows when document events occur (e.g., status changes, document views)
 
-* [git](https://git-scm.com/downloads)
-* Node.js and pnpm. Minimum version Node 18. You can find instructions on how to install both using nvm (Node Version Manager) for Linux, Mac, and WSL [here](https://github.com/nvm-sh/nvm). For Windows users, refer to Microsoft's guide to [Install NodeJS on Windows](https://docs.microsoft.com/en-us/windows/dev-environment/javascript/nodejs-on-windows).
-* Install n8n with:
-  ```
-  pnpm install n8n -g
-  ```
-* Recommended: follow n8n's guide to [set up your development environment](https://docs.n8n.io/integrations/creating-nodes/build/node-development-environment/).
+## Installation
 
-## Using this starter
+Follow these steps to install the PandaDoc nodes in your n8n instance:
 
-These are the basic steps for working with the starter. For detailed guidance on creating and publishing nodes, refer to the [documentation](https://docs.n8n.io/integrations/creating-nodes/).
+### In n8n Desktop or Self-Hosted
 
-1. [Generate a new repository](https://github.com/n8n-io/n8n-nodes-starter/generate) from this template repository.
-2. Clone your new repo:
-   ```
-   git clone https://github.com/<your organization>/<your-repo-name>.git
-   ```
-3. Run `pnpm i` to install dependencies.
-4. Open the project in your editor.
-5. Browse the examples in `/nodes` and `/credentials`. Modify the examples, or replace them with your own nodes.
-6. Update the `package.json` to match your details.
-7. Run `pnpm lint` to check for errors or `pnpm lintfix` to automatically fix errors when possible.
-8. Test your node locally. Refer to [Run your node locally](https://docs.n8n.io/integrations/creating-nodes/test/run-node-locally/) for guidance.
-9. Replace this README with documentation for your node. Use the [README_TEMPLATE](README_TEMPLATE.md) to get started.
-10. Update the LICENSE file to use your details.
-11. [Publish](https://docs.npmjs.com/packages-and-modules/contributing-packages-to-the-registry) your package to npm.
+1. Go to **Settings > Community Nodes**
+2. Click **Install**
+3. Enter `n8n-nodes-pandadoc` and click **Install**
 
-## More information
+### Via npm
 
-Refer to our [documentation on creating nodes](https://docs.n8n.io/integrations/creating-nodes/) for detailed information on building your own nodes.
+If you're using a self-hosted n8n instance, you can install the package directly:
+
+```bash
+npm install n8n-nodes-pandadoc
+```
+
+For n8n Desktop users, you can install the package via the UI as described above.
+
+## Authentication
+
+The PandaDoc nodes support two authentication methods:
+
+### API Key Authentication
+
+1. Log in to your [PandaDoc account](https://app.pandadoc.com/)
+2. Go to **Settings > API** (you'll need admin permissions)
+3. Generate a new API key
+4. Use this API key in the PandaDoc node credentials
+
+### OAuth2 Authentication
+
+1. Go to the [PandaDoc Developer Dashboard](https://developers.pandadoc.com/)
+2. Create a new application
+3. Configure the OAuth2 settings with your redirect URL (typically `https://your-n8n-domain.com/rest/oauth2-credential/callback`)
+4. Use the client ID and secret in the PandaDoc OAuth2 credentials in n8n
+
+## Node Usage
+
+### PandaDoc Node
+
+The PandaDoc node allows you to work with several resources:
+
+#### Documents
+
+- **Get All Documents**: Retrieve a list of documents with filtering options
+- **Get Document Details**: Get detailed information about a specific document
+- **Get Document Status**: Check the current status of a document
+- **Create Document from Template**: Generate a new document using an existing template
+- **Create Document from PDF**: Upload a PDF and convert it to a PandaDoc document
+- **Send Document**: Send a document to recipients for signing
+- **Download Document**: Download a document in various formats (PDF, DOCX, etc.)
+- **Delete Document**: Remove a document from your account
+- **Update Document**: Modify document properties, metadata, or move to a folder
+- **Create Document Link**: Generate a sharing link for a document
+
+#### Templates
+
+- **Get All Templates**: List available templates with filtering options
+- **Get Template Details**: Get detailed information about a template
+
+#### Folders
+
+- **Get All Folders**: List folders in your account
+- **Get Folder Details**: Get detailed information about a specific folder
+- **Create Folder**: Create a new folder
+- **Delete Folder**: Remove a folder
+
+#### Contacts
+
+- **Get All Contacts**: List contacts with filtering options
+- **Get Contact Details**: Get detailed information about a contact
+- **Create Contact**: Add a new contact
+- **Update Contact**: Modify contact information
+- **Delete Contact**: Remove a contact
+
+### PandaDoc Trigger Node
+
+The PandaDoc Trigger node allows you to start workflows when certain events occur in PandaDoc:
+
+#### Events
+
+- **Document State Changed**: Triggers when a document changes state (e.g., draft → sent → completed)
+- **Document Updated**: Triggers when a document is updated
+- **Document Viewed**: Triggers when a recipient views a document
+- **Document Completed**: Triggers when all recipients complete a document
+
+## Example Workflows
+
+### Document Approval Workflow
+
+This workflow creates a document from a template, sends it for signing, and then processes the document once it's completed:
+
+1. **HTTP Request** node: Receives request with customer data
+2. **PandaDoc** node: Creates document from template with customer data
+3. **PandaDoc** node: Sends document for signing
+4. **PandaDoc Trigger** node: Waits for document to be completed
+5. **PandaDoc** node: Downloads completed document
+6. **Email** node: Sends confirmation with document attached
+
+### Contract Renewal Notification
+
+This workflow monitors for contracts nearing expiration and sends renewal notifications:
+
+1. **Schedule** node: Runs daily
+2. **PandaDoc** node: Gets all documents with filtering for contracts
+3. **Function** node: Identifies contracts expiring within 30 days
+4. **PandaDoc** node: Creates renewal documents from templates
+5. **Slack** node: Notifies account managers of pending renewals
+
+## API & Usage Limits
+
+PandaDoc has certain API limits that you should be aware of:
+
+- Free accounts: 100 API calls per day
+- Business accounts: 1000 API calls per day
+- Enterprise accounts: Custom limits
+
+Refer to the [PandaDoc API documentation](https://developers.pandadoc.com/) for the most up-to-date information on limits and quotas.
+
+## Troubleshooting
+
+### Common Issues
+
+1. **Authentication Failed**: Ensure your API key is valid and has not expired. For OAuth2, you may need to reauthorize if your token has expired.
+
+2. **Rate Limiting**: If you hit the API rate limits, the node will return a 429 error. Try implementing a retry mechanism with exponential backoff.
+
+3. **Document Creation Fails**: When creating documents from templates, ensure all required fields are provided and properly formatted.
+
+### Support
+
+If you encounter issues with the PandaDoc nodes:
+
+1. Check the [PandaDoc API documentation](https://developers.pandadoc.com/)
+2. Open an issue on the [GitHub repository](https://github.com/nukleas/n8n-nodes-pandadoc)
+3. Reach out to the n8n community on the [forum](https://community.n8n.io/)
 
 ## License
 
-[MIT](https://github.com/n8n-io/n8n-nodes-starter/blob/master/LICENSE.md)
+[MIT](LICENSE)

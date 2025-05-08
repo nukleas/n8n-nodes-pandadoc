@@ -1,19 +1,23 @@
 {
-  "name": "n8n-nodes-<...>",
+  "name": "n8n-nodes-pandadoc",
   "version": "0.1.0",
-  "description": "",
+  "description": "n8n node for PandaDoc API integration",
   "keywords": [
-    "n8n-community-node-package"
+    "n8n-community-node-package",
+    "pandadoc",
+    "documents",
+    "contracts",
+    "e-signature"
   ],
   "license": "MIT",
-  "homepage": "",
+  "homepage": "https://github.com/nukleas/n8n-nodes-pandadoc",
   "author": {
-    "name": "",
-    "email": ""
+    "name": "Nader Heidari",
+    "email": "example@example.com"
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/<...>/n8n-nodes-<...>.git"
+    "url": "https://github.com/nukleas/n8n-nodes-pandadoc.git"
   },
   "engines": {
     "node": ">=18.10",
@@ -36,12 +40,12 @@
   "n8n": {
     "n8nNodesApiVersion": 1,
     "credentials": [
-      "dist/credentials/ExampleCredentialsApi.credentials.js",
-      "dist/credentials/HttpBinApi.credentials.js"
+      "dist/credentials/PandaDocApi.credentials.js",
+      "dist/credentials/PandaDocOAuth2Api.credentials.js"
     ],
     "nodes": [
-      "dist/nodes/ExampleNode/ExampleNode.node.js",
-      "dist/nodes/HttpBin/HttpBin.node.js"
+      "dist/nodes/PandaDoc/PandaDoc.node.js",
+      "dist/nodes/PandaDocTrigger/PandaDocTrigger.node.js"
     ]
   },
   "devDependencies": {
