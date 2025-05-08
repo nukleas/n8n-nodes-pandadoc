@@ -56,15 +56,9 @@ export async function pandaDocApiRequest(
 		json: true,
 	};
 
-	// Use sandbox API if specified in credentials
-	if (credentials.useSandbox === true) {
-		const apiBaseUrl = 'https://api.pandadoc.com';
-		const sandboxBaseUrl = 'https://api.sandbox.pandadoc.com';
-		
-		if (options.uri && options.uri.startsWith(apiBaseUrl)) {
-			options.uri = options.uri.replace(apiBaseUrl, sandboxBaseUrl);
-		}
-	}
+	// Note: PandaDoc doesn't use a separate sandbox URL. The Sandbox mode
+	// is determined by which API key is used (sandbox key vs production key).
+	// The useSandbox setting is kept for informational purposes only.
 
 	// Handle binary data for file uploads
 	if (option.formData) {
@@ -200,7 +194,7 @@ export async function getAllResourceItems<T>(
 		return this.helpers.returnJsonArray(items);
 	} else {
 		qs.page = 1;
-		qs.per_page = limit;
+		qs.count = limit; // PandaDoc uses 'count' instead of 'per_page'
 		const response = await pandaDocApiRequest.call(this, 'GET', resourcePath, {}, qs);
 		return this.helpers.returnJsonArray(response.results as IDataObject[]);
 	}
@@ -235,7 +229,7 @@ export async function getCachedResources(
 			'GET',
 			`/${resourceType}`,
 			{},
-			{ page: 1, per_page: 100 },
+			{ page: 1, count: 100 }, // PandaDoc uses 'count' instead of 'per_page'
 		);
 		data = response.results as IDataObject[];
 		
