@@ -51,10 +51,28 @@ export async function getAllDocuments(
 }
 
 /**
+ * Helper function to extract document ID from resource locator
+ */
+function getDocumentId(this: IExecuteFunctions, i: number): string {
+	const documentIdSource = this.getNodeParameter('documentId', i) as IDataObject;
+	let documentId: string;
+
+	// Extract document ID based on the resource locator mode
+	if (documentIdSource.mode === 'list') {
+		documentId = documentIdSource.value as string;
+	} else {
+		// 'id' mode - direct ID entry
+		documentId = documentIdSource.value as string;
+	}
+
+	return documentId;
+}
+
+/**
  * Get a document
  */
 export async function getDocument(this: IExecuteFunctions, i: number): Promise<IDataObject[]> {
-	const documentId = this.getNodeParameter('documentId', i) as string;
+	const documentId = getDocumentId.call(this, i);
 	const response = await pandaDocApiRequest.call(this, 'GET', `/documents/${documentId}/details`);
 	return this.helpers.returnJsonArray(response);
 }
@@ -66,7 +84,7 @@ export async function getDocumentStatus(
 	this: IExecuteFunctions,
 	i: number,
 ): Promise<IDataObject[]> {
-	const documentId = this.getNodeParameter('documentId', i) as string;
+	const documentId = getDocumentId.call(this, i);
 	const response = await pandaDocApiRequest.call(this, 'GET', `/documents/${documentId}`);
 	return this.helpers.returnJsonArray(response);
 }
@@ -78,7 +96,18 @@ export async function createDocumentFromTemplate(
 	this: IExecuteFunctions,
 	i: number,
 ): Promise<IDataObject[]> {
-	const templateId = this.getNodeParameter('templateId', i) as string;
+	// Handle the resource locator for template ID
+	const templateIdSource = this.getNodeParameter('templateId', i) as IDataObject;
+	let templateId: string;
+
+	// Extract the template ID based on the resource locator mode
+	if (templateIdSource.mode === 'list') {
+		templateId = templateIdSource.value as string;
+	} else {
+		// 'id' mode - direct ID entry
+		templateId = templateIdSource.value as string;
+	}
+
 	const name = this.getNodeParameter('name', i) as string;
 	const options = this.getNodeParameter('options', i, {}) as IDataObject;
 
@@ -296,7 +325,7 @@ export async function createDocumentFromPdf(
  * Send a document
  */
 export async function sendDocument(this: IExecuteFunctions, i: number): Promise<IDataObject[]> {
-	const documentId = this.getNodeParameter('documentId', i) as string;
+	const documentId = getDocumentId.call(this, i);
 	const options = this.getNodeParameter('options', i, {}) as IDataObject;
 
 	const body: IDataObject = {};
@@ -322,7 +351,7 @@ export async function downloadDocument(
 	this: IExecuteFunctions,
 	i: number,
 ): Promise<INodeExecutionData[]> {
-	const documentId = this.getNodeParameter('documentId', i) as string;
+	const documentId = getDocumentId.call(this, i);
 	const format = this.getNodeParameter('format', i) as string;
 	const binaryPropertyName = this.getNodeParameter('binaryPropertyName', i) as string;
 
@@ -360,11 +389,8 @@ export async function downloadDocument(
 /**
  * Delete a document
  */
-export async function deleteDocument(
-	this: IExecuteFunctions,
-	i: number,
-): Promise<INodeExecutionData[]> {
-	const documentId = this.getNodeParameter('documentId', i) as string;
+export async function deleteDocument(this: IExecuteFunctions, i: number): Promise<IDataObject[]> {
+	const documentId = getDocumentId.call(this, i);
 
 	try {
 		await pandaDocApiRequest.call(this, 'DELETE', `/documents/${documentId}`);
@@ -380,11 +406,8 @@ export async function deleteDocument(
 /**
  * Update document properties
  */
-export async function updateDocument(
-	this: IExecuteFunctions,
-	i: number,
-): Promise<IDataObject[]> {
-	const documentId = this.getNodeParameter('documentId', i) as string;
+export async function updateDocument(this: IExecuteFunctions, i: number): Promise<IDataObject[]> {
+	const documentId = getDocumentId.call(this, i);
 	const updateFields = this.getNodeParameter('updateFields', i, {}) as IDataObject;
 
 	const body: IDataObject = {};
@@ -428,11 +451,8 @@ export async function updateDocument(
 /**
  * Create a document share link
  */
-export async function createDocumentLink(
-	this: IExecuteFunctions,
-	i: number,
-): Promise<IDataObject[]> {
-	const documentId = this.getNodeParameter('documentId', i) as string;
+export async function createDocumentLink(this: IExecuteFunctions, i: number): Promise<IDataObject[]> {
+	const documentId = getDocumentId.call(this, i);
 	const options = this.getNodeParameter('options', i, {}) as IDataObject;
 
 	const body: IDataObject = {

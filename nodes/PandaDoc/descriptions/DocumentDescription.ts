@@ -83,18 +83,45 @@ export const documentFields: INodeProperties[] = [
 	/*                          document:update                                  */
 	/* -------------------------------------------------------------------------- */
 	{
-		displayName: 'Document ID',
+		displayName: 'Document',
 		name: 'documentId',
-		type: 'string',
+		type: 'resourceLocator',
+		default: { mode: 'list', value: '' },
 		required: true,
-		default: '',
+		description: 'The document to update',
 		displayOptions: {
 			show: {
 				resource: ['document'],
 				operation: ['update'],
 			},
 		},
-		description: 'The ID of the document to update'
+		modes: [
+			{
+				displayName: 'From List',
+				name: 'list',
+				type: 'list',
+				placeholder: 'Select a document',
+				typeOptions: {
+					searchListMethod: 'searchDocuments',
+					searchable: true,
+				},
+			},
+			{
+				displayName: 'By ID',
+				name: 'id',
+				type: 'string',
+				placeholder: 'e.g., fds89f6ds98fds89f',
+				validation: [
+					{
+						type: 'regex',
+						properties: {
+							regex: '[a-zA-Z0-9]{16,}',
+							errorMessage: 'Not a valid Document ID',
+						},
+					},
+				],
+			},
+		],
 	},
 	{
 		displayName: 'Update Fields',
@@ -162,18 +189,45 @@ export const documentFields: INodeProperties[] = [
 	/*                      document:createDocumentLink                           */
 	/* -------------------------------------------------------------------------- */
 	{
-		displayName: 'Document ID',
+		displayName: 'Document',
 		name: 'documentId',
-		type: 'string',
+		type: 'resourceLocator',
+		default: { mode: 'list', value: '' },
 		required: true,
-		default: '',
+		description: 'The document to create a link for',
 		displayOptions: {
 			show: {
 				resource: ['document'],
 				operation: ['createDocumentLink'],
 			},
 		},
-		description: 'The ID of the document to create a link for'
+		modes: [
+			{
+				displayName: 'From List',
+				name: 'list',
+				type: 'list',
+				placeholder: 'Select a document',
+				typeOptions: {
+					searchListMethod: 'searchDocuments',
+					searchable: true,
+				},
+			},
+			{
+				displayName: 'By ID',
+				name: 'id',
+				type: 'string',
+				placeholder: 'e.g., fds89f6ds98fds89f',
+				validation: [
+					{
+						type: 'regex',
+						properties: {
+							regex: '[a-zA-Z0-9]{16,}',
+							errorMessage: 'Not a valid Document ID',
+						},
+					},
+				],
+			},
+		],
 	},
 	{
 		displayName: 'Options',
@@ -380,36 +434,90 @@ export const documentFields: INodeProperties[] = [
 	/*                                document:get                                 */
 	/* -------------------------------------------------------------------------- */
 	{
-		displayName: 'Document ID',
+		displayName: 'Document',
 		name: 'documentId',
-		type: 'string',
+		type: 'resourceLocator',
+		default: { mode: 'list', value: '' },
 		required: true,
-		default: '',
+		description: 'The document to operate on',
 		displayOptions: {
 			show: {
 				resource: ['document'],
 				operation: ['get', 'delete', 'download', 'getStatus', 'send'],
 			},
 		},
-		description: 'The ID of the document',
+		modes: [
+			{
+				displayName: 'From List',
+				name: 'list',
+				type: 'list',
+				placeholder: 'Select a document',
+				typeOptions: {
+					searchListMethod: 'searchDocuments',
+					searchable: true,
+				},
+			},
+			{
+				displayName: 'By ID',
+				name: 'id',
+				type: 'string',
+				placeholder: 'e.g., fds89f6ds98fds89f',
+				validation: [
+					{
+						type: 'regex',
+						properties: {
+							regex: '[a-zA-Z0-9]{16,}',
+							errorMessage: 'Not a valid Document ID',
+						},
+					},
+				],
+			},
+		],
 	},
 
 	/* -------------------------------------------------------------------------- */
 	/*                          document:createFromTemplate                        */
 	/* -------------------------------------------------------------------------- */
 	{
-		displayName: 'Template ID',
+		displayName: 'Template',
 		name: 'templateId',
-		type: 'string',
-		default: '',
+		type: 'resourceLocator',
+		default: { mode: 'list', value: '' },
 		required: true,
+		description: 'The template to use for document creation',
 		displayOptions: {
 			show: {
 				resource: ['document'],
 				operation: ['createFromTemplate'],
 			},
 		},
-		description: 'The ID of the template to create the document from',
+		modes: [
+			{
+				displayName: 'From List',
+				name: 'list',
+				type: 'list',
+				placeholder: 'Select a template',
+				typeOptions: {
+					searchListMethod: 'searchTemplates',
+					searchable: true,
+				},
+			},
+			{
+				displayName: 'By ID',
+				name: 'id',
+				type: 'string',
+				placeholder: 'e.g., fds89f6ds98fds89f',
+				validation: [
+					{
+						type: 'regex',
+						properties: {
+							regex: '[a-zA-Z0-9]{16,}',
+							errorMessage: 'Not a valid Template ID',
+						},
+					},
+				],
+			},
+		],
 	},
 	{
 		displayName: 'Name',

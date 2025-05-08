@@ -5,6 +5,8 @@ import {
 	INodeType,
 	INodeTypeDescription,
 	NodeOperationError,
+	ILoadOptionsFunctions,
+	INodePropertyOptions,
 } from 'n8n-workflow';
 
 // Import the document operations and fields
@@ -23,7 +25,111 @@ import * as folderMethods from './methods/folderMethods';
 import { contactFields, contactOperations } from './descriptions/ContactDescription';
 import * as contactMethods from './methods/contactMethods';
 
+// Import the shared functions
+import { pandaDocApiRequest } from '../../shared/GenericFunctions';
+
 export class PandaDoc implements INodeType {
+	// Define methods for resource locators and other dynamic functionality
+	methods = {
+		loadOptions: {
+			// Method to search and load templates for resource locator
+			async searchTemplates(this: ILoadOptionsFunctions, filter?: string): Promise<INodePropertyOptions[]> {
+				const returnData: INodePropertyOptions[] = [];
+				const qs: IDataObject = {};
+				
+				// Add search filter if provided
+				if (filter) {
+					qs.q = filter;
+				}
+				
+				try {
+					// Call the API using the shared function
+					const response = await pandaDocApiRequest.call(this, 'GET', '/templates', {}, qs);
+					
+					// Map API response to options format for n8n
+					for (const template of response.results) {
+						const created = template.date_created ? new Date(template.date_created).toLocaleDateString() : 'N/A';
+						returnData.push({
+							name: template.name,
+							value: template.id,
+							description: `Created: ${created}`,
+						});
+					}
+					
+					return returnData;
+				} catch (error) {
+					throw new NodeOperationError(this.getNode(), `PandaDoc API error: ${error.message}`);
+				}
+			},
+			
+			// Method to search and load documents for resource locator
+			async searchDocuments(this: ILoadOptionsFunctions, filter?: string): Promise<INodePropertyOptions[]> {
+				const returnData: INodePropertyOptions[] = [];
+				const qs: IDataObject = {};
+				
+				// Add search filter if provided
+				if (filter) {
+					qs.q = filter;
+				}
+				
+				try {
+					// Call the API using the shared function
+					const response = await pandaDocApiRequest.call(this, 'GET', '/documents', {}, qs);
+					
+					// Map API response to options format for n8n
+					for (const document of response.results) {
+						const modified = document.date_modified ? new Date(document.date_modified).toLocaleDateString() : 'N/A';
+						const status = document.status ? ` (${document.status})` : '';
+						returnData.push({
+							name: `${document.name}${status}`,
+							value: document.id,
+							description: `Modified: ${modified}`,
+						});
+					}
+					
+					return returnData;
+				} catch (error) {
+					throw new NodeOperationError(this.getNode(), `PandaDoc API error: ${error.message}`);
+				}
+			},
+			
+			// Method to search and load folders for resource locator
+			async searchFolders(this: ILoadOptionsFunctions, filter?: string): Promise<INodePropertyOptions[]> {
+				const returnData: INodePropertyOptions[] = [];
+				const qs: IDataObject = {};
+				
+				// Add search filter if provided
+				if (filter) {
+					qs.q = filter;
+				}
+				
+				try {
+					// Call the API using the shared function
+					const response = await pandaDocApiRequest.call(this, 'GET', '/folders', {}, qs);
+					
+					// Add a "None" option for cases where folder is optional
+					returnData.push({
+						name: 'Root (No Folder)',
+						value: '',
+						description: 'Do not place in any folder',
+					});
+					
+					// Map API response to options format for n8n
+					for (const folder of response.results) {
+						returnData.push({
+							name: folder.name,
+							value: folder.uuid,
+							description: folder.shared ? 'Shared folder' : 'Private folder',
+						});
+					}
+					
+					return returnData;
+				} catch (error) {
+					throw new NodeOperationError(this.getNode(), `PandaDoc API error: ${error.message}`);
+				}
+			},
+		},
+	};
 	description: INodeTypeDescription = {
 		displayName: 'PandaDoc',
 		name: 'pandaDoc',
@@ -113,14 +219,14 @@ export class PandaDoc implements INodeType {
 	async execute(this: IExecuteFunctions): Promise<INodeExecutionData[][]> {
 		const items = this.getInputData();
 		const returnData: INodeExecutionData[] = [];
-
+		
+		// For each item, execute the appropriate resource+operation
 		for (let i = 0; i < items.length; i++) {
 			try {
 				const resource = this.getNodeParameter('resource', i) as string;
 				const operation = this.getNodeParameter('operation', i) as string;
-
+				
 				let responseData: INodeExecutionData[] | IDataObject[];
-
 				if (resource === 'document') {
 					switch (operation) {
 						case 'getAll':

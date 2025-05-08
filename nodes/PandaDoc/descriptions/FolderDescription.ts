@@ -102,18 +102,45 @@ export const folderFields: INodeProperties[] = [
 	/*                                folder:get                                   */
 	/* -------------------------------------------------------------------------- */
 	{
-		displayName: 'Folder ID',
+		displayName: 'Folder',
 		name: 'folderId',
-		type: 'string',
+		type: 'resourceLocator',
+		default: { mode: 'list', value: '' },
 		required: true,
-		default: '',
+		description: 'The folder to retrieve',
 		displayOptions: {
 			show: {
 				operation: ['get'],
 				resource: ['folder'],
 			},
 		},
-		description: 'ID of folder to return',
+		modes: [
+			{
+				displayName: 'From List',
+				name: 'list',
+				type: 'list',
+				placeholder: 'Select a folder',
+				typeOptions: {
+					searchListMethod: 'searchFolders',
+					searchable: true,
+				},
+			},
+			{
+				displayName: 'By ID',
+				name: 'id',
+				type: 'string',
+				placeholder: 'e.g., fds89f6ds98fds89f',
+				validation: [
+					{
+						type: 'regex',
+						properties: {
+							regex: '[a-zA-Z0-9-]{16,}',
+							errorMessage: 'Not a valid Folder ID',
+						},
+					},
+				],
+			},
+		],
 	},
 
 	/* -------------------------------------------------------------------------- */
@@ -147,11 +174,43 @@ export const folderFields: INodeProperties[] = [
 		},
 		options: [
 			{
-				displayName: 'Parent Folder ID',
+				displayName: 'Parent Folder',
 				name: 'parent_uuid',
-				type: 'string',
-				default: '',
-				description: 'ID of the parent folder where new folder will be created',
+				type: 'resourceLocator',
+				default: { mode: 'list', value: '' },
+				description: 'The parent folder where new folder will be created',
+				modes: [
+					{
+						displayName: 'From List',
+						name: 'list',
+						type: 'list',
+						placeholder: 'Select a parent folder',
+						typeOptions: {
+							searchListMethod: 'searchFolders',
+							searchable: true,
+						},
+					},
+					{
+						displayName: 'By ID',
+						name: 'id',
+						type: 'string',
+						placeholder: 'e.g., fds89f6ds98fds89f',
+						validation: [
+							{
+								type: 'regex',
+								properties: {
+									regex: '[a-zA-Z0-9-]{16,}',
+									errorMessage: 'Not a valid Folder ID',
+								},
+							},
+						],
+					},
+					{
+						displayName: 'None (Root Level)',
+						name: 'none',
+						type: 'string',
+					},
+				],
 			},
 		],
 	},
@@ -160,17 +219,44 @@ export const folderFields: INodeProperties[] = [
 	/*                                folder:delete                                */
 	/* -------------------------------------------------------------------------- */
 	{
-		displayName: 'Folder ID',
+		displayName: 'Folder',
 		name: 'folderId',
-		type: 'string',
+		type: 'resourceLocator',
+		default: { mode: 'list', value: '' },
 		required: true,
-		default: '',
+		description: 'The folder to delete',
 		displayOptions: {
 			show: {
 				operation: ['delete'],
 				resource: ['folder'],
 			},
 		},
-		description: 'ID of folder to delete',
+		modes: [
+			{
+				displayName: 'From List',
+				name: 'list',
+				type: 'list',
+				placeholder: 'Select a folder',
+				typeOptions: {
+					searchListMethod: 'searchFolders',
+					searchable: true,
+				},
+			},
+			{
+				displayName: 'By ID',
+				name: 'id',
+				type: 'string',
+				placeholder: 'e.g., fds89f6ds98fds89f',
+				validation: [
+					{
+						type: 'regex',
+						properties: {
+							regex: '[a-zA-Z0-9-]{16,}',
+							errorMessage: 'Not a valid Folder ID',
+						},
+					},
+				],
+			},
+		],
 	},
 ];

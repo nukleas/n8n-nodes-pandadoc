@@ -7,6 +7,24 @@ import {
 import { pandaDocApiRequest, getAllResourceItems } from '../../../shared/GenericFunctions';
 
 /**
+ * Helper function to extract folder ID from resource locator
+ */
+function getFolderId(this: IExecuteFunctions, i: number, parameterName: string = 'folderId'): string {
+	const folderIdSource = this.getNodeParameter(parameterName, i) as IDataObject;
+	let folderId: string;
+
+	if (folderIdSource.mode === 'list' || folderIdSource.mode === 'id') {
+		folderId = folderIdSource.value as string;
+	} else if (folderIdSource.mode === 'none') {
+		folderId = '';
+	} else {
+		folderId = folderIdSource.value as string;
+	}
+
+	return folderId;
+}
+
+/**
  * Get all folders with optional filtering using shared function
  */
 export async function getAllFolders(
@@ -32,7 +50,7 @@ export async function getFolder(
 	this: IExecuteFunctions,
 	i: number,
 ): Promise<IDataObject[]> {
-	const folderId = this.getNodeParameter('folderId', i) as string;
+	const folderId = getFolderId.call(this, i, 'folderId');
 
 	try {
 		const response = await pandaDocApiRequest.call(this, 'GET', `/folders/${folderId}`);
@@ -61,7 +79,18 @@ export async function createFolder(
 
 	// Add parent folder if specified
 	if (additionalFields.parent_uuid) {
-		body.parent_uuid = additionalFields.parent_uuid as string;
+		// Extract parent folder ID from resource locator if present
+		const parentFolderSource = additionalFields.parent_uuid as IDataObject;
+		if (parentFolderSource && typeof parentFolderSource === 'object' && 'mode' in parentFolderSource) {
+			if (parentFolderSource.mode === 'none') {
+				// If 'none' selected, don't set parent_uuid
+				delete additionalFields.parent_uuid;
+			} else if (parentFolderSource.mode === 'list' || parentFolderSource.mode === 'id') {
+				body.parent_uuid = parentFolderSource.value as string;
+			}
+		} else {
+			body.parent_uuid = additionalFields.parent_uuid as string;
+		}
 	}
 
 	try {
@@ -82,7 +111,7 @@ export async function deleteFolder(
 	this: IExecuteFunctions,
 	i: number,
 ): Promise<IDataObject[]> {
-	const folderId = this.getNodeParameter('folderId', i) as string;
+	const folderId = getFolderId.call(this, i, 'folderId');
 
 	try {
 		await pandaDocApiRequest.call(this, 'DELETE', `/folders/${folderId}`);
