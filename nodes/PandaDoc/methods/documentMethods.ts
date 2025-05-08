@@ -53,7 +53,7 @@ export async function getAllDocuments(
 /**
  * Helper function to extract document ID from resource locator
  */
-function getDocumentId(this: IExecuteFunctions, i: number): string {
+export function getDocumentId(this: IExecuteFunctions, i: number): string {
 	const documentIdSource = this.getNodeParameter('documentId', i) as IDataObject;
 	let documentId: string;
 

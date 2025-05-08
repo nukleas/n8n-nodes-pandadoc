@@ -141,14 +141,14 @@ export const documentFields: INodeProperties[] = [
 				name: 'name',
 				type: 'string',
 				default: '',
-				description: 'New name for the document'
+				description: 'New name for the document',
 			},
 			{
 				displayName: 'Folder UUID',
 				name: 'folder_uuid',
 				type: 'string',
 				default: '',
-				description: 'Move document to this folder'
+				description: 'Move document to this folder',
 			},
 			{
 				displayName: 'Metadata',
@@ -169,14 +169,14 @@ export const documentFields: INodeProperties[] = [
 								name: 'key',
 								type: 'string',
 								default: '',
-								description: 'Name of the metadata key'
+								description: 'Name of the metadata key',
 							},
 							{
 								displayName: 'Value',
 								name: 'value',
 								type: 'string',
 								default: '',
-								description: 'Value of the metadata'
+								description: 'Value of the metadata',
 							},
 						],
 					},
@@ -247,21 +247,23 @@ export const documentFields: INodeProperties[] = [
 				name: 'recipient',
 				type: 'string',
 				default: '',
-				description: 'Email address of the intended recipient'
+				description: 'Email address of the intended recipient',
 			},
 			{
 				displayName: 'Lifetime (Seconds)',
 				name: 'lifetime',
 				type: 'number',
 				default: 604800,
-				description: 'How long the link will be valid, in seconds. Default is 7 days (604800 seconds).',
+				description:
+					'How long the link will be valid, in seconds. Default is 7 days (604800 seconds).',
 			},
 			{
 				displayName: 'Expiration Date',
 				name: 'expiration_date',
 				type: 'dateTime',
 				default: '',
-				description: 'Exact expiration date for the link. Takes precedence over lifetime if both are specified.',
+				description:
+					'Exact expiration date for the link. Takes precedence over lifetime if both are specified.',
 			},
 		],
 	},
