@@ -148,7 +148,8 @@ If you encounter issues with the PandaDoc nodes:
 
 1. Check the [PandaDoc API documentation](https://developers.pandadoc.com/)
 2. Open an issue on the [GitHub repository](https://github.com/nukleas/n8n-nodes-pandadoc)
-3. Reach out to the n8n community on the [forum](https://community.n8n.io/)
+3. Contact the author directly: Nader Heidari (nader.c.heidari@gmail.com)
+4. Reach out to the n8n community on the [forum](https://community.n8n.io/)
 
 ## License
 

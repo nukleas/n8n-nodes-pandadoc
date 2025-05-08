@@ -81,14 +81,14 @@ export const templateFields: INodeProperties[] = [
 				name: 'folder_uuid',
 				type: 'string',
 				default: '',
-				description: 'UUID of the folder to which the templates belong.'
+				description: 'UUID of the folder to which the templates belong'
 			},
 			{
 				displayName: 'Q',
 				name: 'q',
 				type: 'string',
 				default: '',
-				description: 'Search query. Filter by template name',
+				description: 'Search query. Filter by template name.',
 			},
 			{
 				displayName: 'Count',

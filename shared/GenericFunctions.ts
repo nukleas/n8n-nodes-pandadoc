@@ -22,7 +22,17 @@ interface IApiRequestOptions {
 }
 
 /**
- * Make an API request to PandaDoc
+ * Make an API request to PandaDoc API
+ * 
+ * @param {IExecuteFunctions | IWebhookFunctions | IHookFunctions | ILoadOptionsFunctions} this - The n8n function context
+ * @param {IHttpRequestMethods} method - HTTP method (GET, POST, PUT, DELETE)
+ * @param {string} resource - API endpoint path
+ * @param {object} body - Request body for POST/PUT requests
+ * @param {object} query - Query parameters
+ * @param {string} [uri] - Optional override for the full URI
+ * @param {IDataObject} [option] - Additional options for the request
+ * @returns {Promise<any>} - API response data
+ * @throws {NodeApiError} - Throws an error if the request fails
  */
 export async function pandaDocApiRequest(
 	this: IExecuteFunctions | IWebhookFunctions | IHookFunctions | ILoadOptionsFunctions,
@@ -152,7 +162,14 @@ export async function getAllItems(
 
 /**
  * Generic function for fetching resources (documents, templates, folders, contacts)
- * This reduces code duplication across similar getAll methods
+ * 
+ * @param {IExecuteFunctions} this - The n8n execute functions context
+ * @param {number} i - The index of the item being processed
+ * @param {string} resourcePath - API endpoint path for the resource (e.g., '/documents', '/templates')
+ * @param {string} resourceName - Name of the resource for logging/display purposes
+ * @param {IDataObject} filters - Query parameters to filter the results
+ * @param {boolean} [applyGenericFilters=true] - Whether to apply generic filters (order_by, q) to the query string
+ * @returns {Promise<INodeExecutionData[] | IDataObject[]>} - Returns either an array of node execution data or raw resource objects
  */
 export async function getAllResourceItems<T>(
 	this: IExecuteFunctions,

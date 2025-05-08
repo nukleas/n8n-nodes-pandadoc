@@ -82,6 +82,5 @@ export const webhookFields: INodeProperties[] = [
 		type: 'string',
 		default: '',
 		description: 'Name for this webhook (optional)',
-		required: false
-	}
+}
 ];
