@@ -1,13 +1,18 @@
 import {
 	ICredentialType,
 	INodeProperties,
+	Icon,
 } from 'n8n-workflow';
 
 export class PandaDocOAuth2Api implements ICredentialType {
 	name = 'pandaDocOAuth2Api';
 	displayName = 'PandaDoc OAuth2 API';
 	extends = ['oAuth2Api'];
-	documentationUrl = 'https://developers.pandadoc.com/reference/oauth-flow';
+	documentationUrl = 'https://developers.pandadoc.com/reference/authentication-process';
+	icon: Icon = {
+		light: 'file:pandadoc.svg',
+		dark: 'file:pandadoc.svg',
+	};
 	properties: INodeProperties[] = [
 		{
 			displayName: 'Grant Type',

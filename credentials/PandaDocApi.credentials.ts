@@ -4,12 +4,17 @@ import {
 	IHttpRequestOptions,
 	INodeProperties,
 	IAuthenticate,
+	Icon,
 } from 'n8n-workflow';
 
 export class PandaDocApi implements ICredentialType {
 	name = 'pandaDocApi';
 	displayName = 'PandaDoc API';
-	documentationUrl = 'https://developers.pandadoc.com/reference/api-key';
+	documentationUrl = 'https://developers.pandadoc.com/reference/api-key-authentication-process';
+	icon: Icon = {
+		light: 'file:pandadoc.svg',
+		dark: 'file:pandadoc.svg',
+	};
 	properties: INodeProperties[] = [
 		{
 			displayName: 'API Key',
