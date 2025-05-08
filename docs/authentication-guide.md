@@ -9,14 +9,14 @@ The API Key authentication method is the simplest way to connect to PandaDoc.
 ### Step 1: Generate an API Key in PandaDoc
 
 1. Log in to your [PandaDoc account](https://app.pandadoc.com/)
-2. Navigate to **Settings > API** (requires admin permissions)
-3. Click on **+ Create New API Key**
-4. Enter a name for your API key (e.g., "n8n Integration")
-5. Select the appropriate permissions for your use case:
-   - **Read-only**: If you only need to view documents and templates
-   - **Full access**: If you need to create and modify documents
-6. Click **Create API Key**
-7. Copy your API key immediately (you won't be able to see it again)
+2. Go to **Settings → Integrations**
+3. Select the **API** tab
+4. Click on **Generate API Key** if you don't already have one
+5. Copy your API key immediately (you won't be able to see it again)
+
+> **Note**: PandaDoc provides two types of API keys:
+> - **Sandbox API Key**: For testing purposes only (in the test environment)
+> - **Production API Key**: For use in production environments
 
 ### Step 2: Configure API Key Authentication in n8n
 
@@ -34,13 +34,14 @@ OAuth2 authentication provides a more secure connection and is recommended for p
 ### Step 1: Create an OAuth2 Application in PandaDoc
 
 1. Go to the [PandaDoc Developer Dashboard](https://developers.pandadoc.com/)
-2. Create a new application or select an existing one
-3. Navigate to the **OAuth Settings** tab
-4. Add your redirect URI:
+2. Sign in with your PandaDoc account 
+3. Create a new application or select an existing one
+4. Navigate to the **OAuth Settings** section
+5. Add your redirect URI:
    - For n8n Cloud: `https://YOUR_INSTANCE.n8n.cloud/rest/oauth2-credential/callback`
    - For self-hosted n8n: `https://YOUR_DOMAIN/rest/oauth2-credential/callback`
-5. Save the changes
-6. Note your Client ID and Client Secret
+6. Save the changes
+7. Note your Client ID and Client Secret
 
 ### Step 2: Configure OAuth2 Authentication in n8n
 
@@ -53,7 +54,8 @@ OAuth2 authentication provides a more secure connection and is recommended for p
    - **Client Secret**: Your PandaDoc OAuth2 client secret
    - **Authorization URL**: `https://app.pandadoc.com/oauth2/authorize`
    - **Access Token URL**: `https://api.pandadoc.com/oauth2/access_token`
-   - **Scope**: `read+write+webhook`
+   - **Scope**: `read+write`
+   - Add the `webhook` scope if you need webhook functionality
 6. Toggle **Use Sandbox** if you want to test in the PandaDoc sandbox environment
 7. Click **Save** and authenticate with your PandaDoc account
 
@@ -67,6 +69,7 @@ PandaDoc provides a sandbox environment for testing your integration without aff
 - Use for development and testing
 - Does not affect your production documents and templates
 - Data is periodically cleared from the sandbox environment
+- Uses a separate Sandbox API Key
 
 ### Production Environment
 
@@ -74,6 +77,7 @@ PandaDoc provides a sandbox environment for testing your integration without aff
 - Used for your actual business processes
 - Changes affect real documents and templates
 - Be cautious with operations like document deletion or sending
+- Uses a Production API Key
 
 ### Switching Between Environments
 
@@ -91,7 +95,7 @@ To switch between sandbox and production environments in n8n:
 1. **Invalid API Key Error**: 
    - Verify the API key is entered correctly
    - Generate a new API key if necessary
-   - Check that your API key has the required permissions
+   - Ensure you're using the correct key (Sandbox or Production) based on your environment setting
 
 2. **Rate Limit Exceeded**:
    - PandaDoc limits API requests based on your plan
@@ -109,7 +113,7 @@ To switch between sandbox and production environments in n8n:
    - n8n should automatically refresh the token, but if issues persist, re-authenticate
 
 3. **Insufficient Permissions**:
-   - Make sure you've requested the appropriate scopes (`read+write+webhook`)
+   - Make sure you've requested the appropriate scopes (`read+write` for basic operations, add `webhook` if needed)
    - Ensure your application has been approved for these scopes
 
 ## Security Best Practices
@@ -118,10 +122,21 @@ To switch between sandbox and production environments in n8n:
    - OAuth2 is more secure than API keys for production environments
    - It provides token rotation and explicit user consent
 
-2. **Restrict API Key Permissions**:
-   - Only grant the minimum permissions required for your workflows
-   - Create separate API keys for different integration purposes
+2. **Keep Credentials Secure**:
+   - Never expose your API keys or OAuth credentials in client-side code
+   - Store credentials securely as n8n credentials, not in workflow data
 
-3. **Regularly Rotate Credentials**:
+3. **Use Appropriate Environments**:
+   - Use the Sandbox environment for testing and development
+   - Only use Production environment when ready to work with real documents
+
+4. **Regularly Rotate Credentials**:
    - Periodically generate new API keys
    - Remove unused credentials from your PandaDoc account
+
+## Additional Resources
+
+- [PandaDoc API Documentation](https://developers.pandadoc.com/reference/about)
+- [Authentication Overview](https://developers.pandadoc.com/reference/auth-overview)
+- [API Key Authentication](https://developers.pandadoc.com/reference/api-key-authentication-process)
+- [OAuth 2.0 Authentication](https://developers.pandadoc.com/reference/oauth-20-authentication)
