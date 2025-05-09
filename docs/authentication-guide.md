@@ -61,19 +61,27 @@ OAuth2 authentication provides a more secure connection and is recommended for p
 
 ## Sandbox vs. Production Environment
 
-PandaDoc provides a sandbox environment for testing your integration without affecting your production data.
+PandaDoc provides a sandbox mode for testing your integration without affecting your production data or incurring charges.
 
-### Sandbox Environment
+### Important Note About Sandbox
 
-- API Base URL: `https://api.sandbox.pandadoc.com`
-- Use for development and testing
-- Does not affect your production documents and templates
-- Data is periodically cleared from the sandbox environment
-- Uses a separate Sandbox API Key
+Unlike many APIs, **PandaDoc does not use a separate sandbox URL**. Instead:
 
-### Production Environment
+- The same API endpoint (`https://api.pandadoc.com`) is used for both sandbox and production
+- The difference is in which **API key** you use:
+  - **Sandbox API Key**: For development and testing without charges
+  - **Production API Key**: For live operations with your actual account
 
-- API Base URL: `https://api.pandadoc.com`
+### Sandbox Mode
+
+- Use your Sandbox API Key (generated in the Developer Center)
+- Perfect for development, testing and proof of concepts
+- Does not affect your production documents or incur API charges
+- Uses the same endpoint as production: `https://api.pandadoc.com`
+
+### Production Mode
+
+- Use your Production API Key
 - Used for your actual business processes
 - Changes affect real documents and templates
 - Be cautious with operations like document deletion or sending
