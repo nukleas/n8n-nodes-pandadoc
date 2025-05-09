@@ -312,9 +312,9 @@ export async function createDocumentFromPdf(
 	const response = await pandaDocApiRequest.call(
 		this,
 		'POST',
-		'/documents/upload',
+		'/documents', // Changed from '/documents/upload'
 		{},
-		{},
+		{ upload: '' }, // Added upload query parameter; empty string value is fine
 		undefined,
 		{ formData },
 	);
