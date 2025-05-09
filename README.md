@@ -1,12 +1,6 @@
 # n8n-nodes-pandadoc
 
 <div align="center">
-  <a href="https://www.pandadoc.com/">
-    <img src="https://raw.githubusercontent.com/PandaDoc/pandadoc-api-node-client/master/img/pandadoc-logo.png" alt="PandaDoc Logo" width="400">
-  </a>
-</div>
-
-<div align="center">
   <a href="https://www.npmjs.com/package/n8n-nodes-pandadoc">
     <img src="https://img.shields.io/npm/v/n8n-nodes-pandadoc.svg?color=orange" alt="NPM Version">
   </a>
