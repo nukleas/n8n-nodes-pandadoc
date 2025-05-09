@@ -109,6 +109,62 @@ export class PandaDoc implements INodeType {
 			},
 		},
 		listSearch: {
+			async searchTemplates(
+				this: ILoadOptionsFunctions,
+				filter?: string,
+				paginationToken?: string,
+			): Promise<INodeListSearchResult> {
+				// PandaDoc API uses different parameter format
+				const qs: IDataObject = {
+					page: 1,
+					count: 50,
+					deleted: false,
+				};
+
+				// Add search filter if provided
+				if (filter) {
+					// PandaDoc API uses 'q' parameter for search
+					qs.q = filter;
+				}
+
+				// Handle pagination if token is provided
+				if (paginationToken) {
+					qs.page = parseInt(paginationToken, 10);
+				}
+
+				try {
+					// Call the API using the shared function
+					const response = await pandaDocApiRequest.call(this, 'GET', '/templates', {}, qs);
+
+					// Map API response to format expected by n8n resource locator
+					const results: INodeListSearchItems[] = [];
+					for (const template of response.results) {
+						const created = template.date_created
+							? new Date(template.date_created).toLocaleDateString()
+							: 'N/A';
+						const status = template.status ? ` (${template.status})` : '';
+						results.push({
+							name: `${template.name}${status}`,
+							value: template.id,
+							url: template.id ? `https://app.pandadoc.com/templates/${template.id}` : undefined,
+							description: `Created: ${created}`,
+						});
+					}
+
+					// Check if there are more templates by comparing with PandaDoc API response
+					// If we received the maximum number of results, there are likely more available
+					const currentPage = parseInt(paginationToken || '1', 10);
+					const nextPageToken =
+						response.results.length === 50 ? (currentPage + 1).toString() : undefined;
+
+					return {
+						results,
+						paginationToken: nextPageToken,
+					};
+				} catch (error) {
+					throw new NodeOperationError(this.getNode(), `PandaDoc API error: ${error.message}`);
+				}
+			},
 			// Method to search and load documents for resource locator
 			async searchDocuments(
 				this: ILoadOptionsFunctions,
@@ -147,8 +203,7 @@ export class PandaDoc implements INodeType {
 						results.push({
 							name: `${document.name}${status}`,
 							value: document.id,
-							url: document.id ? 
-								`https://app.pandadoc.com/documents/${document.id}` : undefined,
+							url: document.id ? `https://app.pandadoc.com/documents/${document.id}` : undefined,
 							description: `Modified: ${modified}`,
 						});
 					}
@@ -156,8 +211,8 @@ export class PandaDoc implements INodeType {
 					// Check if there are more documents by comparing with PandaDoc API response
 					// If we received the maximum number of results, there are likely more available
 					const currentPage = parseInt(paginationToken || '1', 10);
-					const nextPageToken = response.results.length === 50 ? 
-						(currentPage + 1).toString() : undefined;
+					const nextPageToken =
+						response.results.length === 50 ? (currentPage + 1).toString() : undefined;
 
 					return {
 						results,

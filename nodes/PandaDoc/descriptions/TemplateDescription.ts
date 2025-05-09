@@ -61,7 +61,7 @@ export const templateFields: INodeProperties[] = [
 			minValue: 1,
 		},
 		default: 50,
-		description: 'Max number of results to return'
+		description: 'Max number of results to return',
 	},
 	{
 		displayName: 'Filters',
@@ -81,7 +81,7 @@ export const templateFields: INodeProperties[] = [
 				name: 'folder_uuid',
 				type: 'string',
 				default: '',
-				description: 'UUID of the folder to which the templates belong'
+				description: 'UUID of the folder to which the templates belong',
 			},
 			{
 				displayName: 'Q',
@@ -118,17 +118,44 @@ export const templateFields: INodeProperties[] = [
 	/*                                template:get                                 */
 	/* -------------------------------------------------------------------------- */
 	{
-		displayName: 'Template ID',
+		displayName: 'Template',
 		name: 'templateId',
-		type: 'string',
+		type: 'resourceLocator',
 		required: true,
-		default: '',
+		default: { mode: 'list', value: '' },
+		modes: [
+			{
+				displayName: 'From List',
+				name: 'list',
+				type: 'list',
+				typeOptions: {
+					searchListMethod: 'searchTemplates',
+					searchable: true,
+				},
+				placeholder: 'Select a Template',
+			},
+			{
+				displayName: 'By ID',
+				name: 'id',
+				type: 'string',
+				placeholder: 'wxyz12345',
+				validation: [
+					{
+						type: 'regex',
+						properties: {
+							regex: '[a-zA-Z0-9]{2,}',
+							errorMessage: 'Not a valid Template ID',
+						},
+					},
+				],
+			},
+		],
 		displayOptions: {
 			show: {
 				operation: ['get'],
 				resource: ['template'],
 			},
 		},
-		description: 'ID of template to return'
+		description: 'Template to get',
 	},
 ];
