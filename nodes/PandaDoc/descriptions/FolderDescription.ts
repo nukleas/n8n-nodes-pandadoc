@@ -116,10 +116,10 @@ export const folderFields: INodeProperties[] = [
 		},
 		modes: [
 			{
-				displayName: 'From List',
+				displayName: 'From List (Searchable)',
 				name: 'list',
 				type: 'list',
-				placeholder: 'Select a folder',
+				placeholder: 'Search and select a folder...',
 				typeOptions: {
 					searchListMethod: 'searchFolders',
 					searchable: true,

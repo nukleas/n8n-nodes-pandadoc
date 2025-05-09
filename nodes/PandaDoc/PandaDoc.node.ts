@@ -68,12 +68,13 @@ export class PandaDoc implements INodeType {
 					throw new NodeOperationError(this.getNode(), `PandaDoc API error: ${error.message}`);
 				}
 			},
-
+		},
+		listSearch: {
 			// Method to search and load folders for resource locator
 			async searchFolders(
 				this: ILoadOptionsFunctions,
 				filter?: string,
-			): Promise<INodePropertyOptions[]> {
+			): Promise<INodeListSearchResult> {
 				const returnData: INodePropertyOptions[] = [];
 				const qs: IDataObject = {};
 
@@ -84,7 +85,7 @@ export class PandaDoc implements INodeType {
 
 				try {
 					// Call the API using the shared function
-					const response = await pandaDocApiRequest.call(this, 'GET', '/folders', {}, qs);
+					const response = await pandaDocApiRequest.call(this, 'GET', '/documents/folders', {}, qs);
 
 					// Add a "None" option for cases where folder is optional
 					returnData.push({
@@ -102,13 +103,14 @@ export class PandaDoc implements INodeType {
 						});
 					}
 
-					return returnData;
+					return {
+						results: returnData,
+						paginationToken: undefined,
+					};
 				} catch (error) {
 					throw new NodeOperationError(this.getNode(), `PandaDoc API error: ${error.message}`);
 				}
 			},
-		},
-		listSearch: {
 			async searchTemplates(
 				this: ILoadOptionsFunctions,
 				filter?: string,
