@@ -1,17 +1,38 @@
 # n8n-nodes-pandadoc
 
-![PandaDoc Logo](https://cdn-assets.pandadoc.com/media/assets/logo.6b381b6.svg)
+<div align="center">
+  <a href="https://www.pandadoc.com/">
+    <img src="https://raw.githubusercontent.com/PandaDoc/pandadoc-api-node-client/master/img/pandadoc-logo.png" alt="PandaDoc Logo" width="400">
+  </a>
+</div>
 
-This package contains n8n nodes to integrate with the [PandaDoc](https://www.pandadoc.com/) API, allowing you to automate document workflows, e-signatures, and manage contracts within your n8n workflows.
+<div align="center">
+  <a href="https://www.npmjs.com/package/n8n-nodes-pandadoc">
+    <img src="https://img.shields.io/npm/v/n8n-nodes-pandadoc.svg?color=orange" alt="NPM Version">
+  </a>
+  <a href="https://github.com/nukleas/n8n-nodes-pandadoc/blob/main/LICENSE.md">
+    <img src="https://img.shields.io/badge/license-MIT-blue.svg" alt="MIT License">
+  </a>
+</div>
+
+<p align="center">
+  This package contains n8n nodes to integrate with the <a href="https://www.pandadoc.com/">PandaDoc</a> API, allowing you to automate document workflows, e-signatures, and manage contracts within your n8n workflows.
+</p>
 
 ## Overview
 
-[PandaDoc](https://www.pandadoc.com/) is a document automation platform that helps you streamline your sales documents, create, send, track, and e-sign documents. This n8n integration provides the following nodes:
+[PandaDoc](https://www.pandadoc.com/) is a document automation platform that helps you streamline your sales documents, create, send, track, and e-sign documents.
 
-- **PandaDoc**: For creating, managing, and tracking documents, templates, contacts, and folders
-- **PandaDoc Trigger**: For triggering workflows when document events occur (e.g., status changes, document views)
+### 🚀 Features
 
-## Installation
+This n8n integration provides the following nodes:
+
+- **PandaDoc Node**: For creating, managing, and tracking documents, templates, contacts, and folders
+- **PandaDoc Trigger Node**: For triggering workflows when document events occur (e.g., status changes, document views)
+
+---
+
+## 📦 Installation
 
 Follow these steps to install the PandaDoc nodes in your n8n instance:
 
@@ -31,7 +52,9 @@ npm install n8n-nodes-pandadoc
 
 For n8n Desktop users, you can install the package via the UI as described above.
 
-## Authentication
+---
+
+## 🔐 Authentication
 
 The PandaDoc nodes support two authentication methods:
 
@@ -49,7 +72,9 @@ The PandaDoc nodes support two authentication methods:
 3. Configure the OAuth2 settings with your redirect URL (typically `https://your-n8n-domain.com/rest/oauth2-credential/callback`)
 4. Use the client ID and secret in the PandaDoc OAuth2 credentials in n8n
 
-## Node Usage
+---
+
+## 📚 Node Usage
 
 ### PandaDoc Node
 
@@ -88,7 +113,7 @@ The PandaDoc node allows you to work with several resources:
 - **Update Contact**: Modify contact information
 - **Delete Contact**: Remove a contact
 
-### PandaDoc Trigger Node
+### PandaDoc Trigger Node 🔔
 
 The PandaDoc Trigger node allows you to start workflows when certain events occur in PandaDoc:
 
@@ -99,7 +124,9 @@ The PandaDoc Trigger node allows you to start workflows when certain events occu
 - **Document Viewed**: Triggers when a recipient views a document
 - **Document Completed**: Triggers when all recipients complete a document
 
-## Example Workflows
+---
+
+## 💡 Example Workflows
 
 ### Document Approval Workflow
 
@@ -122,7 +149,9 @@ This workflow monitors for contracts nearing expiration and sends renewal notifi
 4. **PandaDoc** node: Creates renewal documents from templates
 5. **Slack** node: Notifies account managers of pending renewals
 
-## API & Usage Limits
+---
+
+## ⚠️ API & Usage Limits
 
 PandaDoc has certain API limits that you should be aware of:
 
@@ -132,7 +161,9 @@ PandaDoc has certain API limits that you should be aware of:
 
 Refer to the [PandaDoc API documentation](https://developers.pandadoc.com/) for the most up-to-date information on limits and quotas.
 
-## Troubleshooting
+---
+
+## 🔧 Troubleshooting
 
 ### Common Issues
 
@@ -151,6 +182,20 @@ If you encounter issues with the PandaDoc nodes:
 3. Contact the author directly: Nader Heidari (nader.c.heidari@gmail.com)
 4. Reach out to the n8n community on the [forum](https://community.n8n.io/)
 
-## License
+---
 
-[MIT](LICENSE)
+## 👥 Contributing
+
+Contributions are welcome! Please feel free to submit a Pull Request.
+
+1. Fork the repository
+2. Create your feature branch: `git checkout -b feature/my-new-feature`
+3. Commit your changes: `git commit -am 'Add some feature'`
+4. Push to the branch: `git push origin feature/my-new-feature`
+5. Submit a pull request
+
+---
+
+## 📄 License
+
+[MIT](LICENSE.md) © 2025 Nader Heidari
