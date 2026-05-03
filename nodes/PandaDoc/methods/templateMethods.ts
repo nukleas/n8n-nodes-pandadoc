@@ -32,15 +32,32 @@ export function getTemplateId(this: IExecuteFunctions, i: number): string {
 	return templateId;
 }
 
-/**
- * Get a specific template by ID
- */
 export async function getTemplate(this: IExecuteFunctions, i: number): Promise<IDataObject[]> {
 	const templateId = getTemplateId.call(this, i);
 
 	try {
-		const response = await pandaDocApiRequest.call(this, 'GET', `/templates/${templateId}`);
+		const response = await pandaDocApiRequest.call(
+			this,
+			'GET',
+			`/templates/${templateId}/details`,
+		);
 		return this.helpers.returnJsonArray(response);
+	} catch (error) {
+		if (error.statusCode === 404) {
+			throw new NodeApiError(this.getNode(), {
+				message: `Template with ID ${templateId} not found`,
+			});
+		}
+		throw error;
+	}
+}
+
+export async function deleteTemplate(this: IExecuteFunctions, i: number): Promise<IDataObject[]> {
+	const templateId = getTemplateId.call(this, i);
+
+	try {
+		await pandaDocApiRequest.call(this, 'DELETE', `/templates/${templateId}`);
+		return [{ success: true, templateId }];
 	} catch (error) {
 		if (error.statusCode === 404) {
 			throw new NodeApiError(this.getNode(), {

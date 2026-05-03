@@ -34,6 +34,12 @@ interface IApiRequestOptions {
  * @returns {Promise<any>} - API response data
  * @throws {NodeApiError} - Throws an error if the request fails
  */
+export type PandaDocApiVersion = 'v1' | 'v2' | 'beta';
+
+function buildPandaDocUri(resource: string, apiVersion: PandaDocApiVersion = 'v1'): string {
+	return `https://api.pandadoc.com/public/${apiVersion}${resource}`;
+}
+
 export async function pandaDocApiRequest(
 	this: IExecuteFunctions | IWebhookFunctions | IHookFunctions | ILoadOptionsFunctions,
 	method: IHttpRequestMethods,
@@ -44,6 +50,7 @@ export async function pandaDocApiRequest(
 	option: IDataObject = {},
 ) {
 	const credentials = await this.getCredentials('pandaDocApi');
+	const apiVersion = (option.apiVersion as PandaDocApiVersion) || 'v1';
 	const options: IApiRequestOptions = {
 		headers: {
 			'Content-Type': 'application/json',
@@ -52,7 +59,7 @@ export async function pandaDocApiRequest(
 		method,
 		body: Object.keys(body).length === 0 ? undefined : body,
 		query: query as Record<string, string | number>,
-		uri: uri || `https://api.pandadoc.com/public/v1${resource}`,
+		uri: uri || buildPandaDocUri(resource, apiVersion),
 		json: true,
 	};
 
@@ -93,7 +100,7 @@ export async function pandaDocApiRequestOAuth2(
 	uri?: string,
 	option: IDataObject = {},
 ) {
-	// Note: We don't need to use the credentials directly as the requestOAuth2 helper handles this
+	const apiVersion = (option.apiVersion as PandaDocApiVersion) || 'v1';
 	const options: IApiRequestOptions = {
 		headers: {
 			'Content-Type': 'application/json',
@@ -101,7 +108,7 @@ export async function pandaDocApiRequestOAuth2(
 		method,
 		body: Object.keys(body).length === 0 ? undefined : body,
 		query: query as Record<string, string | number>,
-		uri: uri || `https://api.pandadoc.com/public/v1${resource}`,
+		uri: uri || buildPandaDocUri(resource, apiVersion),
 		json: true,
 	};
 
