@@ -14,10 +14,28 @@ export const documentOperations: INodeProperties[] = [
 		},
 		options: [
 			{
+				name: 'Bulk Delete',
+				value: 'bulkDelete',
+				description: 'Delete multiple documents in one call',
+				action: 'Bulk delete documents',
+			},
+			{
+				name: 'Change Status',
+				value: 'changeStatus',
+				description: 'Manually change a document\'s status (e.g. signed offline)',
+				action: 'Change document status',
+			},
+			{
 				name: 'Create Document Link',
 				value: 'createDocumentLink',
 				description: 'Create a shareable link for a document',
 				action: 'Create a document link',
+			},
+			{
+				name: 'Create From Markdown',
+				value: 'createFromMarkdown',
+				description: 'Create a document from Markdown content',
+				action: 'Create a document from markdown',
 			},
 			{
 				name: 'Create From PDF',
@@ -50,6 +68,12 @@ export const documentOperations: INodeProperties[] = [
 				action: 'Get a document',
 			},
 			{
+				name: 'Get Content (Beta)',
+				value: 'getContent',
+				description: 'Get document content as plain text or markdown (beta endpoint)',
+				action: 'Get document content',
+			},
+			{
 				name: 'Get Many',
 				value: 'getAll',
 				description: 'Get many documents',
@@ -62,16 +86,46 @@ export const documentOperations: INodeProperties[] = [
 				action: 'Get document status',
 			},
 			{
+				name: 'Get Summary (Beta)',
+				value: 'getSummary',
+				description: 'Get an AI-generated summary of the document (beta endpoint)',
+				action: 'Get document summary',
+			},
+			{
 				name: 'Send',
 				value: 'send',
 				description: 'Send a document',
 				action: 'Send a document',
 			},
 			{
+				name: 'Send Reminder',
+				value: 'sendReminder',
+				description: 'Send a reminder email to recipients',
+				action: 'Send a reminder',
+			},
+			{
+				name: 'Transfer All Ownership',
+				value: 'transferAllOwnership',
+				description: 'Transfer ownership of all documents from one user to another',
+				action: 'Transfer all documents ownership',
+			},
+			{
+				name: 'Transfer Ownership',
+				value: 'transferOwnership',
+				description: 'Transfer ownership of this document to another user',
+				action: 'Transfer document ownership',
+			},
+			{
 				name: 'Update',
 				value: 'update',
 				description: 'Update a document properties',
 				action: 'Update a document',
+			},
+			{
+				name: 'Update Fields',
+				value: 'updateFields',
+				description: 'Update field values directly on a document',
+				action: 'Update document fields',
 			},
 		],
 		default: 'getAll',
@@ -445,7 +499,19 @@ export const documentFields: INodeProperties[] = [
 		displayOptions: {
 			show: {
 				resource: ['document'],
-				operation: ['get', 'delete', 'download', 'getStatus', 'send'],
+				operation: [
+					'get',
+					'delete',
+					'download',
+					'getStatus',
+					'send',
+					'sendReminder',
+					'transferOwnership',
+					'changeStatus',
+					'updateFields',
+					'getContent',
+					'getSummary',
+				],
 			},
 		},
 		modes: [
@@ -714,6 +780,27 @@ export const documentFields: INodeProperties[] = [
 												type: 'number',
 												default: 1,
 												description: 'Quantity of the item',
+											},
+											{
+												displayName: 'Discount (%)',
+												name: 'discount',
+												type: 'number',
+												default: 0,
+												description: 'Discount percentage applied to this item',
+											},
+											{
+												displayName: 'Tax First (%)',
+												name: 'tax_first',
+												type: 'number',
+												default: 0,
+												description: 'Primary tax percentage applied to this item',
+											},
+											{
+												displayName: 'Tax Second (%)',
+												name: 'tax_second',
+												type: 'number',
+												default: 0,
+												description: 'Secondary tax percentage applied to this item',
 											},
 										],
 									},
@@ -1022,5 +1109,384 @@ export const documentFields: INodeProperties[] = [
 			},
 		},
 		description: 'Name of the binary property to write the file to',
+	},
+
+	/* -------------------------------------------------------------------------- */
+	/*                          document:sendReminder                             */
+	/* -------------------------------------------------------------------------- */
+	{
+		displayName: 'Options',
+		name: 'options',
+		type: 'collection',
+		placeholder: 'Add Option',
+		default: {},
+		displayOptions: {
+			show: {
+				resource: ['document'],
+				operation: ['sendReminder'],
+			},
+		},
+		options: [
+			{
+				displayName: 'Subject',
+				name: 'subject',
+				type: 'string',
+				default: '',
+				description: 'Subject line of the reminder email (max 512 chars)',
+			},
+			{
+				displayName: 'Message',
+				name: 'message',
+				type: 'string',
+				typeOptions: {
+					alwaysOpenEditWindow: true,
+				},
+				default: '',
+				description: 'Message body of the reminder email',
+			},
+		],
+	},
+
+	/* -------------------------------------------------------------------------- */
+	/*                       document:transferOwnership                           */
+	/* -------------------------------------------------------------------------- */
+	{
+		displayName: 'New Owner Email',
+		name: 'newOwnerEmail',
+		type: 'string',
+		required: true,
+		default: '',
+		placeholder: 'name@example.com',
+		displayOptions: {
+			show: {
+				resource: ['document'],
+				operation: ['transferOwnership'],
+			},
+		},
+		description: 'Email address of the workspace member who should become the new owner',
+	},
+
+	/* -------------------------------------------------------------------------- */
+	/*                     document:transferAllOwnership                          */
+	/* -------------------------------------------------------------------------- */
+	{
+		displayName: 'From Owner Email',
+		name: 'fromOwnerEmail',
+		type: 'string',
+		required: true,
+		default: '',
+		placeholder: 'old-owner@example.com',
+		displayOptions: {
+			show: {
+				resource: ['document'],
+				operation: ['transferAllOwnership'],
+			},
+		},
+		description: 'Current owner whose documents should be transferred',
+	},
+	{
+		displayName: 'To Owner Email',
+		name: 'toOwnerEmail',
+		type: 'string',
+		required: true,
+		default: '',
+		placeholder: 'new-owner@example.com',
+		displayOptions: {
+			show: {
+				resource: ['document'],
+				operation: ['transferAllOwnership'],
+			},
+		},
+		description: 'Member who should receive ownership of all documents',
+	},
+
+	/* -------------------------------------------------------------------------- */
+	/*                          document:bulkDelete                               */
+	/* -------------------------------------------------------------------------- */
+	{
+		displayName: 'Document IDs',
+		name: 'documentIds',
+		type: 'string',
+		required: true,
+		default: '',
+		placeholder: 'id1,id2,id3',
+		displayOptions: {
+			show: {
+				resource: ['document'],
+				operation: ['bulkDelete'],
+			},
+		},
+		description: 'Comma-separated list of document IDs to delete',
+	},
+
+	/* -------------------------------------------------------------------------- */
+	/*                       document:createFromMarkdown                          */
+	/* -------------------------------------------------------------------------- */
+	{
+		displayName: 'Name',
+		name: 'name',
+		type: 'string',
+		default: '',
+		required: true,
+		displayOptions: {
+			show: {
+				resource: ['document'],
+				operation: ['createFromMarkdown'],
+			},
+		},
+		description: 'The name of the document',
+	},
+	{
+		displayName: 'Markdown',
+		name: 'markdown',
+		type: 'string',
+		typeOptions: {
+			alwaysOpenEditWindow: true,
+			rows: 10,
+		},
+		default: '',
+		required: true,
+		displayOptions: {
+			show: {
+				resource: ['document'],
+				operation: ['createFromMarkdown'],
+			},
+		},
+		description: 'Markdown content of the document',
+	},
+	{
+		displayName: 'Recipients',
+		name: 'recipientsUi',
+		placeholder: 'Add Recipient',
+		type: 'fixedCollection',
+		typeOptions: {
+			multipleValues: true,
+		},
+		displayOptions: {
+			show: {
+				resource: ['document'],
+				operation: ['createFromMarkdown'],
+			},
+		},
+		default: {},
+		options: [
+			{
+				name: 'recipientsValues',
+				displayName: 'Recipient',
+				values: [
+					{
+						displayName: 'Email',
+						name: 'email',
+						type: 'string',
+						placeholder: 'name@email.com',
+						required: true,
+						default: '',
+						description: "Recipient's email address",
+					},
+					{
+						displayName: 'First Name',
+						name: 'first_name',
+						type: 'string',
+						default: '',
+						description: "Recipient's first name",
+					},
+					{
+						displayName: 'Last Name',
+						name: 'last_name',
+						type: 'string',
+						default: '',
+						description: "Recipient's last name",
+					},
+					{
+						displayName: 'Role',
+						name: 'role',
+						type: 'string',
+						default: '',
+						description: 'The role of the recipient',
+					},
+					{
+						displayName: 'Signing Order',
+						name: 'signing_order',
+						type: 'number',
+						typeOptions: { minValue: 1 },
+						default: 1,
+						description: 'Order number for signing the document',
+					},
+				],
+			},
+		],
+	},
+	{
+		displayName: 'Options',
+		name: 'options',
+		type: 'collection',
+		placeholder: 'Add Option',
+		default: {},
+		displayOptions: {
+			show: {
+				resource: ['document'],
+				operation: ['createFromMarkdown'],
+			},
+		},
+		options: [
+			{
+				displayName: 'Tags',
+				name: 'tags',
+				type: 'string',
+				default: '',
+				description: 'Comma-separated list of tags',
+			},
+			{
+				displayName: 'Folder UUID',
+				name: 'folder_uuid',
+				type: 'string',
+				default: '',
+				description: 'The UUID of the folder to store the document in',
+			},
+			{
+				displayName: 'Parse Form Fields',
+				name: 'parse_form_fields',
+				type: 'boolean',
+				default: false,
+				description: 'Whether to map markdown markers to document fields',
+			},
+			{
+				displayName: 'Metadata',
+				name: 'metadataUi',
+				placeholder: 'Add Metadata',
+				type: 'fixedCollection',
+				default: {},
+				typeOptions: { multipleValues: true },
+				options: [
+					{
+						name: 'metadataValues',
+						displayName: 'Metadata',
+						values: [
+							{
+								displayName: 'Key',
+								name: 'key',
+								type: 'string',
+								default: '',
+								description: 'Name of the metadata key',
+							},
+							{
+								displayName: 'Value',
+								name: 'value',
+								type: 'string',
+								default: '',
+								description: 'Value of the metadata',
+							},
+						],
+					},
+				],
+			},
+		],
+	},
+
+	/* -------------------------------------------------------------------------- */
+	/*                          document:updateFields                             */
+	/* -------------------------------------------------------------------------- */
+	{
+		displayName: 'Fields',
+		name: 'fields',
+		type: 'json',
+		default: '{}',
+		required: true,
+		displayOptions: {
+			show: {
+				resource: ['document'],
+				operation: ['updateFields'],
+			},
+		},
+		description:
+			'JSON object mapping field names/UUIDs to their new values, e.g. {"FirstName": {"value": "Jane"}}',
+	},
+
+	/* -------------------------------------------------------------------------- */
+	/*                          document:changeStatus                             */
+	/* -------------------------------------------------------------------------- */
+	{
+		displayName: 'New Status',
+		name: 'manualStatus',
+		type: 'options',
+		required: true,
+		default: 2,
+		displayOptions: {
+			show: {
+				resource: ['document'],
+				operation: ['changeStatus'],
+			},
+		},
+		options: [
+			{ name: 'Completed', value: 2, description: 'Mark document as completed' },
+			{ name: 'Voided', value: 11, description: 'Mark document as voided' },
+			{ name: 'Declined', value: 13, description: 'Mark document as declined' },
+		],
+		description: 'New status to assign to the document',
+	},
+	{
+		displayName: 'Options',
+		name: 'options',
+		type: 'collection',
+		placeholder: 'Add Option',
+		default: {},
+		displayOptions: {
+			show: {
+				resource: ['document'],
+				operation: ['changeStatus'],
+			},
+		},
+		options: [
+			{
+				displayName: 'Note',
+				name: 'note',
+				type: 'string',
+				default: '',
+				description: 'Optional note describing the manual status change',
+			},
+		],
+	},
+
+	/* -------------------------------------------------------------------------- */
+	/*                       document:getContent (Beta)                           */
+	/* -------------------------------------------------------------------------- */
+	{
+		displayName: 'Format',
+		name: 'contentFormat',
+		type: 'options',
+		default: 'text',
+		displayOptions: {
+			show: {
+				resource: ['document'],
+				operation: ['getContent'],
+			},
+		},
+		options: [
+			{ name: 'Plain Text', value: 'text' },
+			{ name: 'Markdown', value: 'markdown' },
+		],
+		description: 'Format of the returned content',
+	},
+
+	/* -------------------------------------------------------------------------- */
+	/*                       document:getSummary (Beta)                           */
+	/* -------------------------------------------------------------------------- */
+	{
+		displayName: 'Detail Level',
+		name: 'summaryLevel',
+		type: 'options',
+		default: 'short',
+		displayOptions: {
+			show: {
+				resource: ['document'],
+				operation: ['getSummary'],
+			},
+		},
+		options: [
+			{ name: 'Detailed', value: 'detailed' },
+			{ name: 'Short', value: 'short' },
+			{ name: 'Headline', value: 'headline' },
+		],
+		description: 'Level of detail for the summary',
 	},
 ];

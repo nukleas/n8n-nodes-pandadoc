@@ -341,8 +341,14 @@ export class PandaDoc implements INodeType {
 						case 'createFromPdf':
 							responseData = await documentMethods.createDocumentFromPdf.call(this, i);
 							break;
+						case 'createFromMarkdown':
+							responseData = await documentMethods.createDocumentFromMarkdown.call(this, i);
+							break;
 						case 'send':
 							responseData = await documentMethods.sendDocument.call(this, i);
+							break;
+						case 'sendReminder':
+							responseData = await documentMethods.sendDocumentReminder.call(this, i);
 							break;
 						case 'download':
 							responseData = await documentMethods.downloadDocument.call(this, i);
@@ -350,8 +356,29 @@ export class PandaDoc implements INodeType {
 						case 'delete':
 							responseData = await documentMethods.deleteDocument.call(this, i);
 							break;
+						case 'bulkDelete':
+							responseData = await documentMethods.bulkDeleteDocuments.call(this, i);
+							break;
 						case 'update':
 							responseData = await documentMethods.updateDocument.call(this, i);
+							break;
+						case 'updateFields':
+							responseData = await documentMethods.updateDocumentFields.call(this, i);
+							break;
+						case 'changeStatus':
+							responseData = await documentMethods.changeDocumentStatus.call(this, i);
+							break;
+						case 'transferOwnership':
+							responseData = await documentMethods.transferDocumentOwnership.call(this, i);
+							break;
+						case 'transferAllOwnership':
+							responseData = await documentMethods.transferAllDocumentsOwnership.call(this, i);
+							break;
+						case 'getContent':
+							responseData = await documentMethods.getDocumentContent.call(this, i);
+							break;
+						case 'getSummary':
+							responseData = await documentMethods.getDocumentSummary.call(this, i);
 							break;
 						case 'createDocumentLink':
 							responseData = await documentMethods.createDocumentLink.call(this, i);
@@ -372,6 +399,9 @@ export class PandaDoc implements INodeType {
 							break;
 						case 'create':
 							responseData = await folderMethods.createFolder.call(this, i);
+							break;
+						case 'rename':
+							responseData = await folderMethods.renameFolder.call(this, i);
 							break;
 						case 'delete':
 							responseData = await folderMethods.deleteFolder.call(this, i);
@@ -412,6 +442,9 @@ export class PandaDoc implements INodeType {
 							break;
 						case 'get':
 							responseData = await templateMethods.getTemplate.call(this, i);
+							break;
+						case 'delete':
+							responseData = await templateMethods.deleteTemplate.call(this, i);
 							break;
 						default:
 							throw new NodeOperationError(

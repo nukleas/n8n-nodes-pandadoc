@@ -81,22 +81,33 @@ The PandaDoc node allows you to work with several resources:
 - **Get Document Status**: Check the current status of a document
 - **Create Document from Template**: Generate a new document using an existing template
 - **Create Document from PDF**: Upload a PDF and convert it to a PandaDoc document
+- **Create Document from Markdown**: Generate a document from Markdown content (with optional field mapping)
 - **Send Document**: Send a document to recipients for signing
+- **Send Reminder**: Send a reminder email to recipients of a sent document
 - **Download Document**: Download a document in various formats (PDF, DOCX, etc.)
 - **Delete Document**: Remove a document from your account
+- **Bulk Delete**: Delete multiple documents in a single call
 - **Update Document**: Modify document properties, metadata, or move to a folder
+- **Update Fields**: Set field values directly on a document
+- **Change Status**: Manually mark a document as completed/voided/declined (e.g. signed offline)
+- **Transfer Ownership**: Transfer a document to another workspace member
+- **Transfer All Ownership**: Move ownership of all documents from one user to another
+- **Get Content (Beta)**: Retrieve document content as plain text or markdown
+- **Get Summary (Beta)**: Retrieve an AI-generated summary at three detail levels
 - **Create Document Link**: Generate a sharing link for a document
 
 #### Templates
 
 - **Get All Templates**: List available templates with filtering options
 - **Get Template Details**: Get detailed information about a template
+- **Delete Template**: Remove a template
 
 #### Folders
 
 - **Get All Folders**: List folders in your account
 - **Get Folder Details**: Get detailed information about a specific folder
 - **Create Folder**: Create a new folder
+- **Rename Folder**: Rename an existing folder
 - **Delete Folder**: Remove a folder
 
 #### Contacts

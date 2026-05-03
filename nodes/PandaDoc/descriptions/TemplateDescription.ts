@@ -13,6 +13,12 @@ export const templateOperations: INodeProperties[] = [
 		},
 		options: [
 			{
+				name: 'Delete',
+				value: 'delete',
+				description: 'Delete a template',
+				action: 'Delete a template',
+			},
+			{
 				name: 'Get',
 				value: 'get',
 				description: 'Get a template',
@@ -152,10 +158,10 @@ export const templateFields: INodeProperties[] = [
 		],
 		displayOptions: {
 			show: {
-				operation: ['get'],
+				operation: ['get', 'delete'],
 				resource: ['template'],
 			},
 		},
-		description: 'Template to get',
+		description: 'Template to operate on',
 	},
 ];

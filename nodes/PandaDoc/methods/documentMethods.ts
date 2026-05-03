@@ -11,6 +11,7 @@ import {
 	IDocumentPricing,
 	IDocumentMetadata,
 	IPricingTable,
+	IPricingTableItem,
 	IDocumentContentPlaceholder,
 } from '../../../shared/Interfaces';
 
@@ -161,12 +162,19 @@ export async function createDocumentFromTemplate(
 
 			if (tableData.itemsUi && (tableData.itemsUi as IDataObject).itemsValues) {
 				for (const itemData of (tableData.itemsUi as IDataObject).itemsValues as IDataObject[]) {
-					table.items?.push({
+					const item: IPricingTableItem = {
 						name: itemData.name as string,
 						description: itemData.description as string,
 						price: itemData.price as number,
 						qty: itemData.qty as number,
-					});
+					};
+					if (itemData.discount !== undefined && itemData.discount !== null && itemData.discount !== '')
+						item.discount = itemData.discount as number;
+					if (itemData.tax_first !== undefined && itemData.tax_first !== null && itemData.tax_first !== '')
+						item.tax_first = itemData.tax_first as number;
+					if (itemData.tax_second !== undefined && itemData.tax_second !== null && itemData.tax_second !== '')
+						item.tax_second = itemData.tax_second as number;
+					table.items?.push(item);
 				}
 			}
 			pricing.tables?.push(table);
@@ -448,9 +456,279 @@ export async function updateDocument(this: IExecuteFunctions, i: number): Promis
 	}
 }
 
-/**
- * Create a document share link
- */
+export async function sendDocumentReminder(
+	this: IExecuteFunctions,
+	i: number,
+): Promise<IDataObject[]> {
+	const documentId = getDocumentId.call(this, i);
+	const options = this.getNodeParameter('options', i, {}) as IDataObject;
+
+	const body: IDataObject = {};
+	if (options.message) body.message = options.message as string;
+	if (options.subject) body.subject = options.subject as string;
+
+	try {
+		const response = await pandaDocApiRequest.call(
+			this,
+			'POST',
+			`/documents/${documentId}/send-reminder`,
+			body,
+		);
+		return this.helpers.returnJsonArray(response || { success: true, documentId });
+	} catch (error) {
+		if (error.statusCode === 404) {
+			throw new NodeApiError(this.getNode(), {
+				message: `Document with ID ${documentId} not found`,
+			});
+		}
+		throw error;
+	}
+}
+
+export async function transferDocumentOwnership(
+	this: IExecuteFunctions,
+	i: number,
+): Promise<IDataObject[]> {
+	const documentId = getDocumentId.call(this, i);
+	const newOwner = this.getNodeParameter('newOwnerEmail', i) as string;
+
+	const body: IDataObject = { email: newOwner };
+
+	try {
+		const response = await pandaDocApiRequest.call(
+			this,
+			'POST',
+			`/documents/${documentId}/transfer-ownership`,
+			body,
+		);
+		return this.helpers.returnJsonArray(response || { success: true, documentId });
+	} catch (error) {
+		if (error.statusCode === 404) {
+			throw new NodeApiError(this.getNode(), {
+				message: `Document with ID ${documentId} not found`,
+			});
+		}
+		throw error;
+	}
+}
+
+export async function transferAllDocumentsOwnership(
+	this: IExecuteFunctions,
+	i: number,
+): Promise<IDataObject[]> {
+	const fromEmail = this.getNodeParameter('fromOwnerEmail', i) as string;
+	const toEmail = this.getNodeParameter('toOwnerEmail', i) as string;
+
+	const body: IDataObject = {
+		owner: fromEmail,
+		new_owner: toEmail,
+	};
+
+	const response = await pandaDocApiRequest.call(
+		this,
+		'POST',
+		'/documents/transfer-all-ownership',
+		body,
+	);
+	return this.helpers.returnJsonArray(response || { success: true, fromEmail, toEmail });
+}
+
+export async function bulkDeleteDocuments(
+	this: IExecuteFunctions,
+	i: number,
+): Promise<IDataObject[]> {
+	const idsRaw = this.getNodeParameter('documentIds', i) as string;
+	const ids = idsRaw
+		.split(',')
+		.map((id) => id.trim())
+		.filter((id) => id.length > 0);
+
+	if (ids.length === 0) {
+		throw new NodeApiError(this.getNode(), {
+			message: 'At least one document ID is required',
+		});
+	}
+
+	await pandaDocApiRequest.call(this, 'DELETE', '/documents', { ids });
+	return [{ success: true, deleted_ids: ids }];
+}
+
+export async function createDocumentFromMarkdown(
+	this: IExecuteFunctions,
+	i: number,
+): Promise<IDataObject[]> {
+	const name = this.getNodeParameter('name', i) as string;
+	const markdown = this.getNodeParameter('markdown', i) as string;
+	const options = this.getNodeParameter('options', i, {}) as IDataObject;
+
+	const recipientsUi = this.getNodeParameter('recipientsUi', i, {}) as IDataObject;
+	const recipients: IDocumentRecipient[] = [];
+	if (recipientsUi && recipientsUi.recipientsValues) {
+		for (const recipientValue of recipientsUi.recipientsValues as IDataObject[]) {
+			const recipient: IDocumentRecipient = {
+				email: recipientValue.email as string,
+			};
+			if (recipientValue.first_name) recipient.first_name = recipientValue.first_name as string;
+			if (recipientValue.last_name) recipient.last_name = recipientValue.last_name as string;
+			if (recipientValue.role) recipient.role = recipientValue.role as string;
+			if (recipientValue.signing_order)
+				recipient.signing_order = recipientValue.signing_order as number;
+			recipients.push(recipient);
+		}
+	}
+
+	const tags: string[] = [];
+	if (options.tags) {
+		const tagsString = options.tags as string;
+		for (const tag of tagsString.split(',')) {
+			tags.push(tag.trim());
+		}
+	}
+
+	const metadata: IDocumentMetadata = {};
+	if (options.metadataUi && (options.metadataUi as IDataObject).metadataValues) {
+		for (const metadataItem of (options.metadataUi as IDataObject)
+			.metadataValues as IDataObject[]) {
+			metadata[metadataItem.key as string] = metadataItem.value as string;
+		}
+	}
+
+	const body: IDataObject = {
+		name,
+		markdown,
+		recipients,
+	};
+	if (tags.length > 0) body.tags = tags;
+	if (Object.keys(metadata).length > 0) body.metadata = metadata;
+	if (options.folder_uuid) body.folder_uuid = options.folder_uuid as string;
+	if (options.parse_form_fields !== undefined)
+		body.parse_form_fields = options.parse_form_fields as boolean;
+
+	const response = await pandaDocApiRequest.call(
+		this,
+		'POST',
+		'/documents',
+		body,
+		{ 'upload-markdown': '' },
+	);
+	return this.helpers.returnJsonArray(response);
+}
+
+export async function updateDocumentFields(
+	this: IExecuteFunctions,
+	i: number,
+): Promise<IDataObject[]> {
+	const documentId = getDocumentId.call(this, i);
+	const fieldsJson = this.getNodeParameter('fields', i) as string;
+
+	let fields: IDataObject;
+	try {
+		fields = typeof fieldsJson === 'string' ? JSON.parse(fieldsJson) : (fieldsJson as IDataObject);
+	} catch (err) {
+		throw new NodeApiError(this.getNode(), {
+			message:
+				'Fields must be a valid JSON object — keys are field names/uuids, values are { value: ... }',
+		});
+	}
+
+	try {
+		await pandaDocApiRequest.call(this, 'PATCH', `/documents/${documentId}/fields`, fields);
+		return [{ success: true, documentId }];
+	} catch (error) {
+		if (error.statusCode === 404) {
+			throw new NodeApiError(this.getNode(), {
+				message: `Document with ID ${documentId} not found`,
+			});
+		}
+		throw error;
+	}
+}
+
+export async function changeDocumentStatus(
+	this: IExecuteFunctions,
+	i: number,
+): Promise<IDataObject[]> {
+	const documentId = getDocumentId.call(this, i);
+	const status = this.getNodeParameter('manualStatus', i) as number;
+	const options = this.getNodeParameter('options', i, {}) as IDataObject;
+
+	const body: IDataObject = { status };
+	if (options.note) body.note = options.note as string;
+
+	try {
+		const response = await pandaDocApiRequest.call(
+			this,
+			'POST',
+			`/documents/${documentId}/status`,
+			body,
+		);
+		return this.helpers.returnJsonArray(response || { success: true, documentId, status });
+	} catch (error) {
+		if (error.statusCode === 404) {
+			throw new NodeApiError(this.getNode(), {
+				message: `Document with ID ${documentId} not found`,
+			});
+		}
+		throw error;
+	}
+}
+
+export async function getDocumentContent(
+	this: IExecuteFunctions,
+	i: number,
+): Promise<IDataObject[]> {
+	const documentId = getDocumentId.call(this, i);
+	const format = this.getNodeParameter('contentFormat', i, 'text') as string;
+
+	try {
+		const response = await pandaDocApiRequest.call(
+			this,
+			'GET',
+			`/documents/${documentId}/content`,
+			{},
+			{ format },
+			undefined,
+			{ apiVersion: 'beta' },
+		);
+		return this.helpers.returnJsonArray(response);
+	} catch (error) {
+		if (error.statusCode === 404) {
+			throw new NodeApiError(this.getNode(), {
+				message: `Document with ID ${documentId} not found`,
+			});
+		}
+		throw error;
+	}
+}
+
+export async function getDocumentSummary(
+	this: IExecuteFunctions,
+	i: number,
+): Promise<IDataObject[]> {
+	const documentId = getDocumentId.call(this, i);
+	const level = this.getNodeParameter('summaryLevel', i, 'short') as string;
+
+	try {
+		const response = await pandaDocApiRequest.call(
+			this,
+			'GET',
+			`/documents/${documentId}/summary`,
+			{},
+			{ level },
+			undefined,
+			{ apiVersion: 'beta' },
+		);
+		return this.helpers.returnJsonArray(response);
+	} catch (error) {
+		if (error.statusCode === 404) {
+			throw new NodeApiError(this.getNode(), {
+				message: `Document with ID ${documentId} not found`,
+			});
+		}
+		throw error;
+	}
+}
+
 export async function createDocumentLink(this: IExecuteFunctions, i: number): Promise<IDataObject[]> {
 	const documentId = getDocumentId.call(this, i);
 	const options = this.getNodeParameter('options', i, {}) as IDataObject;
