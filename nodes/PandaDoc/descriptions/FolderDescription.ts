@@ -36,6 +36,12 @@ export const folderOperations: INodeProperties[] = [
 				description: 'Get many folders',
 				action: 'Get many folders',
 			},
+			{
+				name: 'Rename',
+				value: 'rename',
+				description: 'Rename a folder',
+				action: 'Rename a folder',
+			},
 		],
 		default: 'getAll',
 	},
@@ -154,11 +160,52 @@ export const folderFields: INodeProperties[] = [
 		default: '',
 		displayOptions: {
 			show: {
-				operation: ['create'],
+				operation: ['create', 'rename'],
 				resource: ['folder'],
 			},
 		},
-		description: 'Name of the folder to create',
+		description: 'Name of the folder',
+	},
+	{
+		displayName: 'Folder',
+		name: 'folderId',
+		type: 'resourceLocator',
+		default: { mode: 'list', value: '' },
+		required: true,
+		description: 'The folder to rename',
+		displayOptions: {
+			show: {
+				operation: ['rename'],
+				resource: ['folder'],
+			},
+		},
+		modes: [
+			{
+				displayName: 'From List',
+				name: 'list',
+				type: 'list',
+				placeholder: 'Select a folder',
+				typeOptions: {
+					searchListMethod: 'searchFolders',
+					searchable: true,
+				},
+			},
+			{
+				displayName: 'By ID',
+				name: 'id',
+				type: 'string',
+				placeholder: 'e.g., fds89f6ds98fds89f',
+				validation: [
+					{
+						type: 'regex',
+						properties: {
+							regex: '[a-zA-Z0-9-]{16,}',
+							errorMessage: 'Not a valid Folder ID',
+						},
+					},
+				],
+			},
+		],
 	},
 	{
 		displayName: 'Additional Fields',

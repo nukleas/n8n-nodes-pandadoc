@@ -97,9 +97,28 @@ export async function createFolder(this: IExecuteFunctions, i: number): Promise<
 	}
 }
 
-/**
- * Delete a folder
- */
+export async function renameFolder(this: IExecuteFunctions, i: number): Promise<IDataObject[]> {
+	const folderId = getFolderId.call(this, i, 'folderId');
+	const name = this.getNodeParameter('name', i) as string;
+
+	try {
+		const response = await pandaDocApiRequest.call(
+			this,
+			'PUT',
+			`/documents/folders/${folderId}`,
+			{ name },
+		);
+		return this.helpers.returnJsonArray(response);
+	} catch (error) {
+		if (error.statusCode === 404) {
+			throw new NodeApiError(this.getNode(), {
+				message: `Folder with ID ${folderId} not found`,
+			});
+		}
+		throw error;
+	}
+}
+
 export async function deleteFolder(this: IExecuteFunctions, i: number): Promise<IDataObject[]> {
 	const folderId = getFolderId.call(this, i, 'folderId');
 
