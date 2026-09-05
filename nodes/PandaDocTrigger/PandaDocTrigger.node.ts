@@ -1,30 +1,50 @@
-import {
-	IHookFunctions,
-	IWebhookFunctions,
+import { createHmac, timingSafeEqual } from 'node:crypto';
+import type {
 	IDataObject,
+	IHookFunctions,
 	INodeType,
 	INodeTypeDescription,
+	IWebhookFunctions,
 	IWebhookResponseData,
-	NodeOperationError,
+	JsonObject,
 } from 'n8n-workflow';
+import { NodeApiError, NodeConnectionTypes, NodeOperationError } from 'n8n-workflow';
 
-import { pandaDocApiRequest, pandaDocApiRequestOAuth2 } from '../../shared/GenericFunctions';
-import { triggerOperations, webhookFields } from './descriptions/TriggerDescription';
+import { pandaDocApiRequest } from '../../shared/GenericFunctions';
+import { triggerProperties } from './descriptions/TriggerDescription';
+
+interface IPandaDocWebhookEvent {
+	event: string;
+	data: IDataObject;
+}
+
+/**
+ * PandaDoc signs every delivery with HMAC-SHA256 over the raw request body using the
+ * subscription's shared key and sends the hex digest as the `signature` query parameter.
+ */
+function isValidSignature(rawBody: Buffer, sharedKey: string, signature: unknown): boolean {
+	if (typeof signature !== 'string') return false;
+	const expected = createHmac('sha256', sharedKey).update(rawBody).digest('hex');
+	return (
+		signature.length === expected.length &&
+		timingSafeEqual(Buffer.from(signature), Buffer.from(expected))
+	);
+}
 
 export class PandaDocTrigger implements INodeType {
 	description: INodeTypeDescription = {
 		displayName: 'PandaDoc Trigger',
 		name: 'pandaDocTrigger',
-		icon: 'file:../PandaDoc/pandadoc.svg',
+		icon: { light: 'file:../../icons/pandadoc.svg', dark: 'file:../../icons/pandadoc.dark.svg' },
 		group: ['trigger'],
 		version: 1,
-		subtitle: '={{$parameter["event"]}}',
+		subtitle: '={{$parameter["events"].join(", ")}}',
 		description: 'Starts the workflow when PandaDoc events occur',
 		defaults: {
 			name: 'PandaDoc Trigger',
 		},
 		inputs: [],
-		outputs: ['main'],
+		outputs: [NodeConnectionTypes.Main],
 		credentials: [
 			{
 				name: 'pandaDocApi',
@@ -70,210 +90,143 @@ export class PandaDocTrigger implements INodeType {
 				],
 				default: 'apiKey',
 			},
-			...triggerOperations,
-			...webhookFields,
+			...triggerProperties,
 		],
 	};
 
-	methods = {
-		loadOptions: {
-			// Add any dynamic options loading methods if needed
-		},
-	};
-
-	// This method will be called when the webhook needs to be created
 	webhookMethods = {
 		default: {
 			async checkExists(this: IHookFunctions): Promise<boolean> {
 				const webhookData = this.getWorkflowStaticData('node');
-
-				// If webhookId is already saved, check if it still exists
-				if (webhookData.webhookId !== undefined) {
-					try {
-						// Check if the webhook exists
-						const endpoint = `/webhooks/${webhookData.webhookId}`;
-						
-						if (this.getNodeParameter('authentication', 0) === 'oAuth2') {
-							await pandaDocApiRequestOAuth2.call(this, 'GET', endpoint);
-						} else {
-							await pandaDocApiRequest.call(this, 'GET', endpoint);
-						}
-						
-						// If no error is thrown, the webhook exists
-						return true;
-					} catch (error) {
-						// If webhook does not exist, delete the stored data
-						if (error.httpCode === '404') {
-							delete webhookData.webhookId;
-							delete webhookData.webhookSecret;
-						}
+				if (webhookData.webhookId === undefined) {
+					return false;
+				}
+				try {
+					await pandaDocApiRequest.call(
+						this,
+						'GET',
+						`/webhook-subscriptions/${webhookData.webhookId}`,
+					);
+					return true;
+				} catch (error) {
+					if ((error as NodeApiError).httpCode === '404') {
+						delete webhookData.webhookId;
+						delete webhookData.webhookSharedKey;
 						return false;
 					}
+					throw new NodeApiError(this.getNode(), error as JsonObject);
 				}
-				return false;
 			},
 
 			async create(this: IHookFunctions): Promise<boolean> {
-				const webhookUrl = this.getNodeWebhookUrl('default');
 				const webhookData = this.getWorkflowStaticData('node');
-				const authentication = this.getNodeParameter('authentication', 0);
-				const event = this.getNodeParameter('event', 0) as string;
-				const options = this.getNodeParameter('options', 0) as IDataObject;
-				const webhookName = this.getNodeParameter('webhookName', 0) as string;
+				const events = this.getNodeParameter('events') as string[];
+				const options = this.getNodeParameter('options', {}) as IDataObject;
 
-				// Map n8n event names to PandaDoc API event names
-				const eventMap: { [key: string]: string } = {
-					document_state_changed: 'document_state_changed',
-					document_updated: 'document_updated',
-					document_viewed: 'document_viewed',
-					document_completed: 'document_completed',
-				};
-
-				// Create the webhook data
 				const body: IDataObject = {
-					name: webhookName || `n8n-webhook-${event}`,
-					url: webhookUrl,
-					events: [eventMap[event]],
+					name: (options.name as string) || `n8n: ${this.getWorkflow().name ?? 'workflow'}`,
+					url: this.getNodeWebhookUrl('default'),
+					active: true,
+					triggers: events,
 				};
-
-				// Add workspace ID filter if specified
-				if (options.workspaceId) {
-					body.workspace_id = options.workspaceId;
+				const payload = options.payload as string[] | undefined;
+				if (payload?.length) {
+					body.payload = payload;
 				}
 
-				try {
-					let responseData;
-					
-					// Create the webhook on PandaDoc
-					if (authentication === 'oAuth2') {
-						responseData = await pandaDocApiRequestOAuth2.call(this, 'POST', '/webhooks', body);
-					} else {
-						responseData = await pandaDocApiRequest.call(this, 'POST', '/webhooks', body);
-					}
+				const response = (await pandaDocApiRequest.call(
+					this,
+					'POST',
+					'/webhook-subscriptions',
+					body,
+				)) as IDataObject;
 
-					if (responseData.id === undefined) {
-						throw new NodeOperationError(this.getNode(), 'PandaDoc webhook creation failed');
-					}
-
-					// Save the webhook data
-					webhookData.webhookId = responseData.id as string;
-					webhookData.webhookSecret = responseData.secret as string;
-					
-					return true;
-				} catch (error) {
-					throw new NodeOperationError(this.getNode(), `PandaDoc webhook creation failed: ${error.message}`);
+				if (typeof response.uuid !== 'string') {
+					throw new NodeOperationError(
+						this.getNode(),
+						'PandaDoc did not return a webhook subscription ID',
+					);
 				}
+
+				webhookData.webhookId = response.uuid;
+				webhookData.webhookSharedKey = response.shared_key;
+				return true;
 			},
 
 			async delete(this: IHookFunctions): Promise<boolean> {
 				const webhookData = this.getWorkflowStaticData('node');
-				const authentication = this.getNodeParameter('authentication', 0);
-
-				// Skip if no webhook ID is stored
 				if (webhookData.webhookId === undefined) {
 					return true;
 				}
-
 				try {
-					// Delete the webhook from PandaDoc
-					const endpoint = `/webhooks/${webhookData.webhookId}`;
-					
-					if (authentication === 'oAuth2') {
-						await pandaDocApiRequestOAuth2.call(this, 'DELETE', endpoint);
-					} else {
-						await pandaDocApiRequest.call(this, 'DELETE', endpoint);
-					}
-
-					// Clear the stored data
-					delete webhookData.webhookId;
-					delete webhookData.webhookSecret;
-					
-					return true;
+					await pandaDocApiRequest.call(
+						this,
+						'DELETE',
+						`/webhook-subscriptions/${webhookData.webhookId}`,
+					);
 				} catch (error) {
-					// If webhook does not exist, consider it successfully deleted
-					if (error.httpCode === '404') {
-						delete webhookData.webhookId;
-						delete webhookData.webhookSecret;
-						return true;
+					if ((error as NodeApiError).httpCode !== '404') {
+						throw new NodeApiError(this.getNode(), error as JsonObject);
 					}
-					
-					throw new NodeOperationError(this.getNode(), `PandaDoc webhook deletion failed: ${error.message}`);
 				}
+				delete webhookData.webhookId;
+				delete webhookData.webhookSharedKey;
+				return true;
 			},
 		},
 	};
 
 	async webhook(this: IWebhookFunctions): Promise<IWebhookResponseData> {
 		const webhookData = this.getWorkflowStaticData('node');
-		const headerData = this.getHeaderData();
-		const body = this.getBodyData();
-		const options = this.getNodeParameter('options', 0) as IDataObject;
-		const authentication = this.getNodeParameter('authentication', 0);
-		const event = this.getNodeParameter('event', 0) as string;
+		const events = this.getNodeParameter('events') as string[];
+		const options = this.getNodeParameter('options', {}) as IDataObject;
+		const bodyData = this.getBodyData();
 
-		// Verify webhook signature if secret is available
-		if (webhookData.webhookSecret !== undefined && headerData['x-pandadoc-signature']) {
-			// Here you would implement signature verification if PandaDoc provides this security feature
-			// For now, we'll assume all requests are valid
-		}
-
-		// Basic validation of the webhook payload
-		if (!body.event || !body.data) {
-			return {
-				noWebhookResponse: true,
+		const sharedKey = webhookData.webhookSharedKey;
+		if (typeof sharedKey === 'string' && sharedKey.length > 0) {
+			const request = this.getRequestObject() as ReturnType<
+				IWebhookFunctions['getRequestObject']
+			> & {
+				rawBody?: Buffer;
 			};
-		}
-
-		// Check if this is the correct event type
-		const receivedEvent = body.event as string;
-		
-		// Map received event to our internal events
-		const eventMap: { [key: string]: string } = {
-			'document_state_changed': 'document_state_changed',
-			'document_updated': 'document_updated',
-			'document_viewed': 'document_viewed',
-			'document_completed': 'document_completed',
-		};
-		
-		const expectedEvent = eventMap[event];
-		
-		if (receivedEvent !== expectedEvent) {
-			// This is not the event we're listening for
-			return {
-				noWebhookResponse: true,
-			};
-		}
-
-		// Process the webhook data
-		const returnData: IDataObject = {};
-		
-		// Copy the webhook payload
-		Object.assign(returnData, body);
-		
-		// Get additional document details if requested
-		if (options.includeDocumentDetails === true && body.data && typeof body.data === 'object' && 'id' in body.data) {
-			try {
-				const documentId = (body.data as IDataObject).id as string;
-				const endpoint = `/documents/${documentId}`;
-				
-				let documentDetails;
-				if (authentication === 'oAuth2') {
-					documentDetails = await pandaDocApiRequestOAuth2.call(this, 'GET', endpoint);
-				} else {
-					documentDetails = await pandaDocApiRequest.call(this, 'GET', endpoint);
-				}
-				
-				returnData.documentDetails = documentDetails;
-			} catch (error) {
-				// Just log the error but don't fail the webhook
-				this.logger.error('Failed to fetch document details: ' + (error as Error).message);
+			const rawBody = request.rawBody ?? Buffer.from(JSON.stringify(bodyData));
+			const { signature } = this.getQueryData() as IDataObject;
+			if (!isValidSignature(rawBody, sharedKey, signature)) {
+				this.getResponseObject().status(401).json({ message: 'Invalid webhook signature' });
+				return { noWebhookResponse: true };
 			}
 		}
 
+		const receivedEvents = (Array.isArray(bodyData)
+			? bodyData
+			: [bodyData]) as unknown as IPandaDocWebhookEvent[];
+		const matching = receivedEvents.filter(
+			(entry) => typeof entry?.event === 'string' && events.includes(entry.event),
+		);
+		if (matching.length === 0) {
+			return { noWebhookResponse: false };
+		}
+
+		const output: IDataObject[] = [];
+		for (const entry of matching) {
+			const item: IDataObject = { ...entry };
+			const documentId = entry.data?.id;
+			if (
+				options.includeDocumentDetails === true &&
+				entry.event.startsWith('document_') &&
+				typeof documentId === 'string'
+			) {
+				item.documentDetails = (await pandaDocApiRequest.call(
+					this,
+					'GET',
+					`/documents/${documentId}/details`,
+				)) as IDataObject;
+			}
+			output.push(item);
+		}
+
 		return {
-			workflowData: [
-				this.helpers.returnJsonArray(returnData),
-			],
+			workflowData: [this.helpers.returnJsonArray(output)],
 		};
 	}
 }

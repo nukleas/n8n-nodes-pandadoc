@@ -1,59 +1,22 @@
-import { INodeProperties } from 'n8n-workflow';
+import type { INodeProperties } from 'n8n-workflow';
 
-export const triggerOperations: INodeProperties[] = [
+import { WEBHOOK_EVENTS, WEBHOOK_PAYLOAD_SECTIONS } from '../../../shared/Constants';
+
+export const triggerProperties: INodeProperties[] = [
 	{
-		displayName: 'Resource',
-		name: 'resource',
-		type: 'options',
-		noDataExpression: true,
-		options: [
-			{
-				name: 'Document',
-				value: 'document',
-			},
-		],
-		default: 'document',
+		displayName: 'Events',
+		name: 'events',
+		type: 'multiOptions',
 		required: true,
-	},
-	{
-		displayName: 'Event',
-		name: 'event',
-		type: 'options',
-		displayOptions: {
-			show: {
-				resource: ['document'],
-			},
-		},
-		options: [
-			{
-				name: 'Document State Changed',
-				value: 'document_state_changed',
-				description: 'Triggers when a document state changes (e.g., draft, sent, completed)',
-			},
-			{
-				name: 'Document Updated',
-				value: 'document_updated',
-				description: 'Triggers when a document is updated',
-			},
-			{
-				name: 'Document Viewed',
-				value: 'document_viewed',
-				description: 'Triggers when a document is viewed by a recipient',
-			},
-			{
-				name: 'Document Completed',
-				value: 'document_completed',
-				description: 'Triggers when a document is completed by all recipients',
-			},
-		],
-		default: 'document_state_changed',
-		required: true,
+		options: WEBHOOK_EVENTS,
+		default: [],
+		description: 'The PandaDoc events that start this workflow',
 	},
 	{
 		displayName: 'Options',
 		name: 'options',
 		type: 'collection',
-		placeholder: 'Add Options',
+		placeholder: 'Add option',
 		default: {},
 		options: [
 			{
@@ -61,26 +24,24 @@ export const triggerOperations: INodeProperties[] = [
 				name: 'includeDocumentDetails',
 				type: 'boolean',
 				default: false,
-				description: 'Whether to include full document details in the output'
+				description:
+					'Whether to fetch the full document details for document events and add them as documentDetails',
 			},
 			{
-				displayName: 'Only For Workspace',
-				name: 'workspaceId',
+				displayName: 'Payload Sections',
+				name: 'payload',
+				type: 'multiOptions',
+				options: WEBHOOK_PAYLOAD_SECTIONS,
+				default: [],
+				description: 'Additional document sections PandaDoc should include in each event payload',
+			},
+			{
+				displayName: 'Subscription Name',
+				name: 'name',
 				type: 'string',
 				default: '',
-				description: 'Filter webhook events to a specific workspace ID'
-			}
-		]
-	}
-];
-
-// Common fields for webhooks
-export const webhookFields: INodeProperties[] = [
-	{
-		displayName: 'Webhook Name',
-		name: 'webhookName',
-		type: 'string',
-		default: '',
-		description: 'Name for this webhook (optional)',
-}
+				description: 'Name of the webhook subscription shown in the PandaDoc Developer Dashboard',
+			},
+		],
+	},
 ];
