@@ -1,0 +1,18 @@
+{
+	"node": "n8n-nodes-pandadoc.pandaDoc",
+	"nodeVersion": "1.0",
+	"codexVersion": "1.0",
+	"categories": ["Sales", "Productivity"],
+	"resources": {
+		"credentialDocumentation": [
+			{
+				"url": "https://github.com/nukleas/n8n-nodes-pandadoc/blob/main/docs/authentication-guide.md"
+			}
+		],
+		"primaryDocumentation": [
+			{
+				"url": "https://github.com/nukleas/n8n-nodes-pandadoc#readme"
+			}
+		]
+	}
+}

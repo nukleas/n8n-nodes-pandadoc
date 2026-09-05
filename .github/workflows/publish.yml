@@ -1,0 +1,56 @@
+# Publishes this n8n community node package to npm on every version tag push.
+#
+# n8n requires community nodes submitted for verification to be published via
+# GitHub Actions with an npm provenance statement. This workflow satisfies that
+# requirement: provenance lets anyone verify that the package was built by this
+# exact workflow, from this exact repository and commit.
+#
+# One-time setup (npm Trusted Publishing, no long-lived secrets):
+#   1. On npmjs.com open the package settings.
+#   2. Under "Publish access" -> "Trusted Publishers", add a GitHub Actions publisher:
+#        Repository owner: nukleas
+#        Repository name:  n8n-nodes-pandadoc
+#        Workflow name:    publish.yml
+#   3. Leave the NPM_TOKEN secret unset.
+#
+# Fallback (npm Automation Token): create a Granular Access Token on npmjs.com
+# scoped to this package and store it as the NPM_TOKEN repository secret.
+#
+# Release process: run `npm run release` locally. It lints, builds, prompts for
+# a version bump, updates the changelog, commits, tags and pushes, which
+# triggers this workflow.
+
+name: Publish
+
+on:
+  push:
+    tags:
+      - '*.*.*'
+
+jobs:
+  publish:
+    name: Publish to npm
+    runs-on: ubuntu-latest
+
+    permissions:
+      id-token: write
+      contents: read
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 'lts/*'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Release
+        run: |
+          [ -n "$NPM_TOKEN" ] && npm config set //registry.npmjs.org/:_authToken "$NPM_TOKEN"
+          npm run release
+        env:
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}

@@ -32,7 +32,7 @@ This workflow automates the entire sales contract process from CRM opportunity t
     },
     {
       "name": "Create Contract from Template",
-      "type": "n8n-nodes-base.pandaDoc",
+      "type": "n8n-nodes-pandadoc.pandaDoc",
       "parameters": {
         "authentication": "apiKey",
         "resource": "document",
@@ -69,7 +69,7 @@ This workflow automates the entire sales contract process from CRM opportunity t
     },
     {
       "name": "Send Contract for Signature",
-      "type": "n8n-nodes-base.pandaDoc",
+      "type": "n8n-nodes-pandadoc.pandaDoc",
       "parameters": {
         "authentication": "apiKey",
         "resource": "document",
@@ -81,11 +81,10 @@ This workflow automates the entire sales contract process from CRM opportunity t
     },
     {
       "name": "Wait for Contract Completion",
-      "type": "n8n-nodes-base.pandaDocTrigger",
+      "type": "n8n-nodes-pandadoc.pandaDocTrigger",
       "parameters": {
         "authentication": "apiKey",
-        "resource": "document",
-        "event": "document_completed",
+        "events": ["document_state_changed"],
         "options": {
           "includeDocumentDetails": true
         }
@@ -94,7 +93,7 @@ This workflow automates the entire sales contract process from CRM opportunity t
     },
     {
       "name": "Download Signed Contract",
-      "type": "n8n-nodes-base.pandaDoc",
+      "type": "n8n-nodes-pandadoc.pandaDoc",
       "parameters": {
         "authentication": "apiKey",
         "resource": "document",
@@ -176,7 +175,7 @@ This workflow implements an internal document approval process using PandaDoc.
     },
     {
       "name": "Create Approval Document",
-      "type": "n8n-nodes-base.pandaDoc",
+      "type": "n8n-nodes-pandadoc.pandaDoc",
       "parameters": {
         "authentication": "apiKey",
         "resource": "document",
@@ -210,7 +209,7 @@ This workflow implements an internal document approval process using PandaDoc.
     },
     {
       "name": "Send for Approval",
-      "type": "n8n-nodes-base.pandaDoc",
+      "type": "n8n-nodes-pandadoc.pandaDoc",
       "parameters": {
         "authentication": "apiKey",
         "resource": "document",
@@ -222,11 +221,10 @@ This workflow implements an internal document approval process using PandaDoc.
     },
     {
       "name": "Wait for Approval Completion",
-      "type": "n8n-nodes-base.pandaDocTrigger",
+      "type": "n8n-nodes-pandadoc.pandaDocTrigger",
       "parameters": {
         "authentication": "apiKey",
-        "resource": "document",
-        "event": "document_completed",
+        "events": ["document_state_changed"],
         "options": {
           "includeDocumentDetails": true
         }
@@ -285,7 +283,7 @@ This workflow implements an internal document approval process using PandaDoc.
     },
     {
       "name": "Download Approved Document",
-      "type": "n8n-nodes-base.pandaDoc",
+      "type": "n8n-nodes-pandadoc.pandaDoc",
       "parameters": {
         "authentication": "apiKey",
         "resource": "document",
@@ -351,7 +349,7 @@ This workflow generates a complete document package for new customers.
     },
     {
       "name": "Create Welcome Letter",
-      "type": "n8n-nodes-base.pandaDoc",
+      "type": "n8n-nodes-pandadoc.pandaDoc",
       "parameters": {
         "authentication": "apiKey",
         "resource": "document",
@@ -380,7 +378,7 @@ This workflow generates a complete document package for new customers.
     },
     {
       "name": "Create Terms of Service",
-      "type": "n8n-nodes-base.pandaDoc",
+      "type": "n8n-nodes-pandadoc.pandaDoc",
       "parameters": {
         "authentication": "apiKey",
         "resource": "document",
@@ -399,7 +397,7 @@ This workflow generates a complete document package for new customers.
     },
     {
       "name": "Create Service Agreement",
-      "type": "n8n-nodes-base.pandaDoc",
+      "type": "n8n-nodes-pandadoc.pandaDoc",
       "parameters": {
         "authentication": "apiKey",
         "resource": "document",
@@ -451,7 +449,7 @@ This workflow generates a complete document package for new customers.
     },
     {
       "name": "Create Document Bundle",
-      "type": "n8n-nodes-base.pandaDoc",
+      "type": "n8n-nodes-pandadoc.pandaDoc",
       "parameters": {
         "authentication": "apiKey",
         "resource": "document",
@@ -472,11 +470,10 @@ This workflow generates a complete document package for new customers.
     },
     {
       "name": "Wait for Service Agreement Completion",
-      "type": "n8n-nodes-base.pandaDocTrigger",
+      "type": "n8n-nodes-pandadoc.pandaDocTrigger",
       "parameters": {
         "authentication": "apiKey",
-        "resource": "document",
-        "event": "document_completed",
+        "events": ["document_state_changed"],
         "options": {
           "includeDocumentDetails": true
         }
@@ -559,7 +556,7 @@ This workflow identifies documents nearing expiration and sends renewal reminder
     },
     {
       "name": "Get All Documents",
-      "type": "n8n-nodes-base.pandaDoc",
+      "type": "n8n-nodes-pandadoc.pandaDoc",
       "parameters": {
         "authentication": "apiKey",
         "resource": "document",
@@ -589,7 +586,7 @@ This workflow identifies documents nearing expiration and sends renewal reminder
     },
     {
       "name": "Get Document Metadata",
-      "type": "n8n-nodes-base.pandaDoc",
+      "type": "n8n-nodes-pandadoc.pandaDoc",
       "parameters": {
         "authentication": "apiKey",
         "resource": "document",
@@ -629,7 +626,7 @@ This workflow identifies documents nearing expiration and sends renewal reminder
     },
     {
       "name": "Create Renewal Document",
-      "type": "n8n-nodes-base.pandaDoc",
+      "type": "n8n-nodes-pandadoc.pandaDoc",
       "parameters": {
         "authentication": "apiKey",
         "resource": "document",
