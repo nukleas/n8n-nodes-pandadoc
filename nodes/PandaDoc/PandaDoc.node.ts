@@ -43,9 +43,8 @@ const operations: Record<string, Record<string, OperationHandler>> = {
 	},
 	folder: {
 		create: folderMethods.createFolder,
-		delete: folderMethods.deleteFolder,
-		get: folderMethods.getFolder,
 		getAll: folderMethods.getAllFolders,
+		rename: folderMethods.renameFolder,
 	},
 	template: {
 		get: templateMethods.getTemplate,

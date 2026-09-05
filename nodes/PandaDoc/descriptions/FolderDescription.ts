@@ -19,22 +19,16 @@ export const folderOperations: INodeProperties[] = [
 				action: 'Create a folder',
 			},
 			{
-				name: 'Delete',
-				value: 'delete',
-				description: 'Delete a folder',
-				action: 'Delete a folder',
-			},
-			{
-				name: 'Get',
-				value: 'get',
-				description: 'Get a folder',
-				action: 'Get a folder',
-			},
-			{
 				name: 'Get Many',
 				value: 'getAll',
 				description: 'Get many folders',
 				action: 'Get many folders',
+			},
+			{
+				name: 'Rename',
+				value: 'rename',
+				description: 'Rename a folder',
+				action: 'Rename a folder',
 			},
 		],
 		default: 'getAll',
@@ -94,51 +88,6 @@ export const folderFields: INodeProperties[] = [
 				type: 'string',
 				default: '',
 				description: 'UUID of the parent folder',
-			},
-		],
-	},
-
-	/* -------------------------------------------------------------------------- */
-	/*                                folder:get                                   */
-	/* -------------------------------------------------------------------------- */
-	{
-		displayName: 'Folder',
-		name: 'folderId',
-		type: 'resourceLocator',
-		default: { mode: 'list', value: '' },
-		required: true,
-		description: 'The folder to retrieve',
-		displayOptions: {
-			show: {
-				operation: ['get'],
-				resource: ['folder'],
-			},
-		},
-		modes: [
-			{
-				displayName: 'From List (Searchable)',
-				name: 'list',
-				type: 'list',
-				placeholder: 'Search and select a folder...',
-				typeOptions: {
-					searchListMethod: 'searchFolders',
-					searchable: true,
-				},
-			},
-			{
-				displayName: 'By ID',
-				name: 'id',
-				type: 'string',
-				placeholder: 'e.g., fds89f6ds98fds89f',
-				validation: [
-					{
-						type: 'regex',
-						properties: {
-							regex: '[a-zA-Z0-9-]{16,}',
-							errorMessage: 'Not a valid Folder ID',
-						},
-					},
-				],
 			},
 		],
 	},
@@ -216,7 +165,7 @@ export const folderFields: INodeProperties[] = [
 	},
 
 	/* -------------------------------------------------------------------------- */
-	/*                                folder:delete                                */
+	/*                                folder:rename                                */
 	/* -------------------------------------------------------------------------- */
 	{
 		displayName: 'Folder',
@@ -224,10 +173,10 @@ export const folderFields: INodeProperties[] = [
 		type: 'resourceLocator',
 		default: { mode: 'list', value: '' },
 		required: true,
-		description: 'The folder to delete',
+		description: 'The folder to rename',
 		displayOptions: {
 			show: {
-				operation: ['delete'],
+				operation: ['rename'],
 				resource: ['folder'],
 			},
 		},
@@ -258,5 +207,19 @@ export const folderFields: INodeProperties[] = [
 				],
 			},
 		],
+	},
+	{
+		displayName: 'New Name',
+		name: 'name',
+		type: 'string',
+		required: true,
+		default: '',
+		displayOptions: {
+			show: {
+				operation: ['rename'],
+				resource: ['folder'],
+			},
+		},
+		description: 'New name of the folder',
 	},
 ];

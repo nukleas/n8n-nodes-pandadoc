@@ -92,10 +92,9 @@ The PandaDoc node allows you to work with several resources:
 
 #### Folders
 
-- **Get All Folders**: List folders in your account
-- **Get Folder Details**: Get detailed information about a specific folder
+- **Get All Folders**: List folders in your account, optionally within a parent folder
 - **Create Folder**: Create a new folder
-- **Delete Folder**: Remove a folder
+- **Rename Folder**: Rename an existing folder (PandaDoc's API cannot delete or move folders)
 
 #### Contacts
 

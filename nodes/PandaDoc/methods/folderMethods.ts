@@ -10,15 +10,6 @@ export async function getAllFolders(this: IExecuteFunctions, i: number) {
 	return await getMany.call(this, i, '/documents/folders');
 }
 
-export async function getFolder(this: IExecuteFunctions, i: number) {
-	const folderId = getFolderId.call(this, i);
-	return (await pandaDocApiRequest.call(
-		this,
-		'GET',
-		`/documents/folders/${folderId}`,
-	)) as IDataObject;
-}
-
 export async function createFolder(this: IExecuteFunctions, i: number) {
 	const name = this.getNodeParameter('name', i) as string;
 	const additionalFields = this.getNodeParameter('additionalFields', i, {}) as IDataObject;
@@ -32,8 +23,10 @@ export async function createFolder(this: IExecuteFunctions, i: number) {
 	return (await pandaDocApiRequest.call(this, 'POST', '/documents/folders', body)) as IDataObject;
 }
 
-export async function deleteFolder(this: IExecuteFunctions, i: number) {
+export async function renameFolder(this: IExecuteFunctions, i: number) {
 	const folderId = getFolderId.call(this, i);
-	await pandaDocApiRequest.call(this, 'DELETE', `/documents/folders/${folderId}`);
-	return { success: true, folderId };
+	const name = this.getNodeParameter('name', i) as string;
+	return (await pandaDocApiRequest.call(this, 'PUT', `/documents/folders/${folderId}`, {
+		name,
+	})) as IDataObject;
 }

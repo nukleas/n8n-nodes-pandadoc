@@ -25,6 +25,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Downloads use n8n's current HTTP helper with `arraybuffer` encoding instead of the deprecated `request` helper.
 
 ### Removed
+- **Breaking:** Folder > Get and Folder > Delete. PandaDoc has no folder-details endpoint (the ID was ignored and the root listing returned) and folders cannot be deleted through the API (HTTP 405). Folder > Rename (`PUT /documents/folders/{id}`) is added instead.
 - **Breaking:** the trigger's single **Event** parameter is replaced by a multi-select **Events** parameter listing the events PandaDoc actually supports (`document_state_changed`, `recipient_completed`, `document_updated`, `document_deleted`, `document_creation_failed`, `document_completed_pdf_ready`, `document_section_added`, `quote_updated`, `template_*`, `content_library_item_*`). `document_viewed` and `document_completed` were never valid PandaDoc webhook triggers. Existing trigger nodes must be reconfigured.
 - **Breaking:** the **Webhook Name** and **Only For Workspace** trigger parameters were replaced by **Options > Subscription Name** and **Options > Payload Sections**.
 - The unused **Use Sandbox** credential toggle. PandaDoc selects the sandbox by API key, not by URL.
