@@ -4,7 +4,7 @@
   <a href="https://www.npmjs.com/package/n8n-nodes-pandadoc">
     <img src="https://img.shields.io/npm/v/n8n-nodes-pandadoc.svg?color=orange" alt="NPM Version">
   </a>
-  <a href="https://github.com/nukleas/n8n-nodes-pandadoc/blob/master/LICENSE.md">
+  <a href="https://github.com/nukleas/n8n-nodes-pandadoc/blob/main/LICENSE.md">
     <img src="https://img.shields.io/badge/license-MIT-blue.svg" alt="MIT License">
   </a>
 </div>

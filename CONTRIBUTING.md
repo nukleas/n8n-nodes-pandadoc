@@ -43,7 +43,7 @@ The project uses the official [`@n8n/node-cli`](https://www.npmjs.com/package/@n
 
 Releases are published from GitHub Actions with npm provenance, which n8n requires for verified community nodes.
 
-1. Make sure `master` is clean and up to date
+1. Make sure `main` is clean and up to date
 2. Run `npm run release`. It lints, builds, prompts for the version bump, updates the changelog, commits, tags and pushes.
 3. The tag push triggers `.github/workflows/publish.yml`, which publishes to npm.
 

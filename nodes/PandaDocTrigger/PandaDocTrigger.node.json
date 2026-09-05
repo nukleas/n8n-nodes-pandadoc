@@ -6,12 +6,12 @@
 	"resources": {
 		"credentialDocumentation": [
 			{
-				"url": "https://github.com/nukleas/n8n-nodes-pandadoc/blob/master/docs/authentication-guide.md"
+				"url": "https://github.com/nukleas/n8n-nodes-pandadoc/blob/main/docs/authentication-guide.md"
 			}
 		],
 		"primaryDocumentation": [
 			{
-				"url": "https://github.com/nukleas/n8n-nodes-pandadoc/blob/master/docs/trigger-node-guide.md"
+				"url": "https://github.com/nukleas/n8n-nodes-pandadoc/blob/main/docs/trigger-node-guide.md"
 			}
 		]
 	}
