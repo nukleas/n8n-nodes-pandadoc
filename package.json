@@ -1,6 +1,6 @@
 {
 	"name": "n8n-nodes-pandadoc",
-	"version": "0.2.0",
+	"version": "0.3.0",
 	"description": "n8n community nodes for the PandaDoc API: documents, templates, folders, contacts and webhook triggers",
 	"keywords": [
 		"n8n-community-node-package",
