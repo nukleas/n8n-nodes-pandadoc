@@ -3,7 +3,9 @@ node_modules
 .tmp
 tmp
 dist
+*.tsbuildinfo
 npm-debug.log*
 yarn.lock
+pnpm-lock.yaml
 .vscode/launch.json
 _ai
