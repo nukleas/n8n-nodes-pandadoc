@@ -314,25 +314,20 @@ export const documentFields: INodeProperties[] = [
 		},
 		options: [
 			{
-				displayName: 'Template ID',
-				name: 'template_id',
-				type: 'string',
+				displayName: 'Completed From',
+				name: 'completed_from',
+				type: 'dateTime',
 				default: '',
-				description: 'Filter by template ID. This parameter cannot be used with form_id.',
+				description:
+					'Filter by documents completed on or after this date. Format: YYYY-MM-DDThh:mm:ss.sssZ.',
 			},
 			{
-				displayName: 'Form ID',
-				name: 'form_id',
-				type: 'string',
+				displayName: 'Completed To',
+				name: 'completed_to',
+				type: 'dateTime',
 				default: '',
-				description: 'Filter by form ID. This parameter cannot be used with template_id.',
-			},
-			{
-				displayName: 'Folder UUID',
-				name: 'folder_uuid',
-				type: 'string',
-				default: '',
-				description: 'Filter documents by the folder where they are stored',
+				description:
+					'Filter by documents completed before this date. Format: YYYY-MM-DDThh:mm:ss.sssZ.',
 			},
 			{
 				displayName: 'Contact ID',
@@ -340,18 +335,6 @@ export const documentFields: INodeProperties[] = [
 				type: 'string',
 				default: '',
 				description: 'Filter by the contact ID of a recipient or approver',
-			},
-			{
-				displayName: 'Status',
-				name: 'status',
-				type: 'options',
-				options: DOCUMENT_STATUS.map((status) => ({
-					name: status.name,
-					value: status.value,
-					description: status.description,
-				})),
-				default: '',
-				description: 'Filter documents by status',
 			},
 			{
 				displayName: 'Created From',
@@ -383,20 +366,18 @@ export const documentFields: INodeProperties[] = [
 				description: 'Search for document by ID',
 			},
 			{
-				displayName: 'Completed From',
-				name: 'completed_from',
-				type: 'dateTime',
+				displayName: 'Folder UUID',
+				name: 'folder_uuid',
+				type: 'string',
 				default: '',
-				description:
-					'Filter by documents completed on or after this date. Format: YYYY-MM-DDThh:mm:ss.sssZ.',
+				description: 'Filter documents by the folder where they are stored',
 			},
 			{
-				displayName: 'Completed To',
-				name: 'completed_to',
-				type: 'dateTime',
+				displayName: 'Form ID',
+				name: 'form_id',
+				type: 'string',
 				default: '',
-				description:
-					'Filter by documents completed before this date. Format: YYYY-MM-DDThh:mm:ss.sssZ.',
+				description: 'Filter by form ID. This parameter cannot be used with template_id.',
 			},
 			{
 				displayName: 'Modified From',
@@ -428,6 +409,25 @@ export const documentFields: INodeProperties[] = [
 				type: 'string',
 				default: '',
 				description: 'Search documents by name or reference number',
+			},
+			{
+				displayName: 'Status',
+				name: 'status',
+				type: 'options',
+				options: DOCUMENT_STATUS.map((status) => ({
+					name: status.name,
+					value: status.value,
+					description: status.description,
+				})),
+				default: '',
+				description: 'Filter documents by status',
+			},
+			{
+				displayName: 'Template ID',
+				name: 'template_id',
+				type: 'string',
+				default: '',
+				description: 'Filter by template ID. This parameter cannot be used with form_id.',
 			},
 		],
 	},
@@ -614,11 +614,45 @@ export const documentFields: INodeProperties[] = [
 		},
 		options: [
 			{
-				displayName: 'Tags',
-				name: 'tags',
+				displayName: 'Content Placeholders',
+				name: 'contentPlaceholdersUi',
+				placeholder: 'Add Content Placeholder',
+				type: 'fixedCollection',
+				default: {},
+				typeOptions: {
+					multipleValues: true,
+				},
+				options: [
+					{
+						name: 'contentPlaceholdersValues',
+						displayName: 'Content Placeholder',
+						values: [
+							{
+								displayName: 'Block ID',
+								name: 'block_id',
+								type: 'string',
+								default: '',
+								description: 'ID of the content placeholder block in the template',
+								required: true,
+							},
+							{
+								displayName: 'Content',
+								name: 'content',
+								type: 'json',
+								default: '',
+								description: 'Content to insert into the placeholder',
+								required: true,
+							},
+						],
+					},
+				],
+			},
+			{
+				displayName: 'Folder UUID',
+				name: 'folder_uuid',
 				type: 'string',
 				default: '',
-				description: 'Comma-separated list of tags to assign to the document',
+				description: 'The UUID of the folder to store the document in',
 			},
 			{
 				displayName: 'Metadata',
@@ -724,45 +758,11 @@ export const documentFields: INodeProperties[] = [
 				],
 			},
 			{
-				displayName: 'Content Placeholders',
-				name: 'contentPlaceholdersUi',
-				placeholder: 'Add Content Placeholder',
-				type: 'fixedCollection',
-				default: {},
-				typeOptions: {
-					multipleValues: true,
-				},
-				options: [
-					{
-						name: 'contentPlaceholdersValues',
-						displayName: 'Content Placeholder',
-						values: [
-							{
-								displayName: 'Block ID',
-								name: 'block_id',
-								type: 'string',
-								default: '',
-								description: 'ID of the content placeholder block in the template',
-								required: true,
-							},
-							{
-								displayName: 'Content',
-								name: 'content',
-								type: 'json',
-								default: '',
-								description: 'Content to insert into the placeholder',
-								required: true,
-							},
-						],
-					},
-				],
-			},
-			{
-				displayName: 'Folder UUID',
-				name: 'folder_uuid',
+				displayName: 'Tags',
+				name: 'tags',
 				type: 'string',
 				default: '',
-				description: 'The UUID of the folder to store the document in',
+				description: 'Comma-separated list of tags to assign to the document',
 			},
 		],
 	},

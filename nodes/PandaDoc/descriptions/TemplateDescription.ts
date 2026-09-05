@@ -77,20 +77,6 @@ export const templateFields: INodeProperties[] = [
 		},
 		options: [
 			{
-				displayName: 'Folder UUID',
-				name: 'folder_uuid',
-				type: 'string',
-				default: '',
-				description: 'UUID of the folder to which the templates belong',
-			},
-			{
-				displayName: 'Q',
-				name: 'q',
-				type: 'string',
-				default: '',
-				description: 'Search query. Filter by template name.',
-			},
-			{
 				displayName: 'Count',
 				name: 'count',
 				type: 'boolean',
@@ -98,11 +84,18 @@ export const templateFields: INodeProperties[] = [
 				description: 'Whether to return only the total count of items',
 			},
 			{
-				displayName: 'Tag',
-				name: 'tag',
+				displayName: 'Folder UUID',
+				name: 'folder_uuid',
 				type: 'string',
 				default: '',
-				description: 'Filter by specific tag',
+				description: 'UUID of the folder to which the templates belong',
+			},
+			{
+				displayName: 'Search Query',
+				name: 'q',
+				type: 'string',
+				default: '',
+				description: 'Search query. Filter by template name.',
 			},
 			{
 				displayName: 'Shared',
@@ -110,6 +103,13 @@ export const templateFields: INodeProperties[] = [
 				type: 'boolean',
 				default: false,
 				description: 'Whether to return only shared templates',
+			},
+			{
+				displayName: 'Tag',
+				name: 'tag',
+				type: 'string',
+				default: '',
+				description: 'Filter by specific tag',
 			},
 		],
 	},
