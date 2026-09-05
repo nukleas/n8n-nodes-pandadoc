@@ -155,15 +155,14 @@ export async function createDocumentFromPdf(this: IExecuteFunctions, i: number) 
 		{ name: 'Data', value: JSON.stringify(data), contentType: 'application/json' },
 	]);
 
+	// PandaDoc distinguishes multipart uploads from JSON creation by the `upload` query flag.
 	return (await pandaDocApiRequest.call(
 		this,
 		'POST',
 		'/documents',
 		body,
-		{},
-		{
-			headers: { 'Content-Type': contentType },
-		},
+		{ upload: '' },
+		{ headers: { 'Content-Type': contentType } },
 	)) as IDataObject;
 }
 
