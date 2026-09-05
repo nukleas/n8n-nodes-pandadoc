@@ -4,7 +4,7 @@
   <a href="https://www.npmjs.com/package/n8n-nodes-pandadoc">
     <img src="https://img.shields.io/npm/v/n8n-nodes-pandadoc.svg?color=orange" alt="NPM Version">
   </a>
-  <a href="https://github.com/nukleas/n8n-nodes-pandadoc/blob/main/LICENSE.md">
+  <a href="https://github.com/nukleas/n8n-nodes-pandadoc/blob/master/LICENSE.md">
     <img src="https://img.shields.io/badge/license-MIT-blue.svg" alt="MIT License">
   </a>
 </div>
@@ -21,30 +21,28 @@
 
 This n8n integration provides the following nodes:
 
-- **PandaDoc Node**: For creating, managing, and tracking documents, templates, contacts, and folders
-- **PandaDoc Trigger Node**: For triggering workflows when document events occur (e.g., status changes, document views)
+- **PandaDoc Node**: For creating, managing, and tracking documents, templates, contacts, and folders. Usable as a tool by n8n AI agents.
+- **PandaDoc Trigger Node**: For starting workflows from PandaDoc webhook events (document status changes, recipient completion, template changes, and more) with signature verification
 
 ---
 
 ## 📦 Installation
 
-Follow these steps to install the PandaDoc nodes in your n8n instance:
+Follow the [community nodes installation guide](https://docs.n8n.io/integrations/community-nodes/installation/) in the n8n documentation.
 
-### In n8n Desktop or Self-Hosted
+### In the n8n UI
 
 1. Go to **Settings > Community Nodes**
 2. Click **Install**
 3. Enter `n8n-nodes-pandadoc` and click **Install**
 
-### Via npm
+### Manually
 
-If you're using a self-hosted n8n instance, you can install the package directly:
+In the n8n user folder of a self-hosted instance:
 
 ```bash
 npm install n8n-nodes-pandadoc
 ```
-
-For n8n Desktop users, you can install the package via the UI as described above.
 
 ---
 
@@ -55,9 +53,9 @@ The PandaDoc nodes support two authentication methods:
 ### API Key Authentication
 
 1. Log in to your [PandaDoc account](https://app.pandadoc.com/)
-2. Go to **Settings > API** (you'll need admin permissions)
-3. Generate a new API key
-4. Use this API key in the PandaDoc node credentials
+2. Go to **Settings > Integrations > API** (you'll need admin permissions)
+3. Generate a new API key. Sandbox and production keys use the same endpoint, so create one n8n credential per key.
+4. Use this API key in the **PandaDoc API** credential. n8n verifies it against the API when you save.
 
 ### OAuth2 Authentication
 
@@ -82,7 +80,7 @@ The PandaDoc node allows you to work with several resources:
 - **Create Document from Template**: Generate a new document using an existing template
 - **Create Document from PDF**: Upload a PDF and convert it to a PandaDoc document
 - **Send Document**: Send a document to recipients for signing
-- **Download Document**: Download a document in various formats (PDF, DOCX, etc.)
+- **Download Document**: Download a completed document as a PDF into a binary property
 - **Delete Document**: Remove a document from your account
 - **Update Document**: Modify document properties, metadata, or move to a folder
 - **Create Document Link**: Generate a sharing link for a document
@@ -109,14 +107,17 @@ The PandaDoc node allows you to work with several resources:
 
 ### PandaDoc Trigger Node 🔔
 
-The PandaDoc Trigger node allows you to start workflows when certain events occur in PandaDoc:
+The PandaDoc Trigger node registers a webhook subscription in your PandaDoc workspace and starts the workflow for the events you select. Deliveries are verified with the subscription's shared key.
 
 #### Events
 
-- **Document State Changed**: Triggers when a document changes state (e.g., draft → sent → completed)
-- **Document Updated**: Triggers when a document is updated
-- **Document Viewed**: Triggers when a recipient views a document
-- **Document Completed**: Triggers when all recipients complete a document
+- **Document State Changed**, **Document Updated**, **Document Deleted**, **Document Creation Failed**, **Document Completed PDF Ready**, **Document Section Added**
+- **Recipient Completed**
+- **Quote Updated**
+- **Template Created**, **Template Updated**, **Template Deleted**
+- **Content Library Item Created**, **Content Library Item Creation Failed**
+
+Optionally include extra payload sections (fields, metadata, pricing, products, tokens) or fetch the full document details for each event. See the [trigger node guide](docs/trigger-node-guide.md).
 
 ---
 
@@ -142,6 +143,12 @@ This workflow monitors for contracts nearing expiration and sends renewal notifi
 3. **Function** node: Identifies contracts expiring within 30 days
 4. **PandaDoc** node: Creates renewal documents from templates
 5. **Slack** node: Notifies account managers of pending renewals
+
+---
+
+## 🧩 Compatibility
+
+Built with the official [`@n8n/node-cli`](https://www.npmjs.com/package/@n8n/node-cli) and tested against n8n 1.x. The package has no runtime dependencies.
 
 ---
 
@@ -180,13 +187,14 @@ If you encounter issues with the PandaDoc nodes:
 
 ## 👥 Contributing
 
-Contributions are welcome! Please feel free to submit a Pull Request.
+Contributions are welcome! See [CONTRIBUTING.md](CONTRIBUTING.md) for the development setup.
 
-1. Fork the repository
-2. Create your feature branch: `git checkout -b feature/my-new-feature`
-3. Commit your changes: `git commit -am 'Add some feature'`
-4. Push to the branch: `git push origin feature/my-new-feature`
-5. Submit a pull request
+```bash
+npm install
+npm run dev     # starts n8n with the nodes loaded and hot reload
+npm run lint
+npm run build
+```
 
 ---
 

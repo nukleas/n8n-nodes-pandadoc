@@ -24,8 +24,7 @@ The API Key authentication method is the simplest way to connect to PandaDoc.
 2. Click on **Create new credential**
 3. Select **PandaDoc API**
 4. Enter your API key in the **API Key** field
-5. Toggle **Use Sandbox** if you want to test in the PandaDoc sandbox environment
-6. Click **Save**
+5. Click **Save**. n8n tests the key against the PandaDoc API immediately.
 
 ## OAuth2 Authentication
 
@@ -49,15 +48,8 @@ OAuth2 authentication provides a more secure connection and is recommended for p
 2. Change the **Authentication** dropdown to **OAuth2**
 3. Click on **Create new credential**
 4. Select **PandaDoc OAuth2 API**
-5. Enter the following details:
-   - **Client ID**: Your PandaDoc OAuth2 client ID
-   - **Client Secret**: Your PandaDoc OAuth2 client secret
-   - **Authorization URL**: `https://app.pandadoc.com/oauth2/authorize`
-   - **Access Token URL**: `https://api.pandadoc.com/oauth2/access_token`
-   - **Scope**: `read+write`
-   - Add the `webhook` scope if you need webhook functionality
-6. Toggle **Use Sandbox** if you want to test in the PandaDoc sandbox environment
-7. Click **Save** and authenticate with your PandaDoc account
+5. Enter your **Client ID** and **Client Secret**. The authorization URL, token URL and the `read write` scope are preconfigured.
+6. Click **Save** and authenticate with your PandaDoc account
 
 ## Sandbox vs. Production Environment
 
@@ -89,12 +81,7 @@ Unlike many APIs, **PandaDoc does not use a separate sandbox URL**. Instead:
 
 ### Switching Between Environments
 
-To switch between sandbox and production environments in n8n:
-
-1. Edit your PandaDoc credential
-2. Toggle the **Use Sandbox** option
-3. Save the credential
-4. Re-authenticate if using OAuth2
+Create one **PandaDoc API** credential per environment (one with the sandbox key, one with the production key) and pick the credential you need in each node.
 
 ## Troubleshooting Authentication Issues
 
@@ -103,7 +90,7 @@ To switch between sandbox and production environments in n8n:
 1. **Invalid API Key Error**: 
    - Verify the API key is entered correctly
    - Generate a new API key if necessary
-   - Ensure you're using the correct key (Sandbox or Production) based on your environment setting
+   - Ensure you're using the correct key (Sandbox or Production) for the data you expect to see
 
 2. **Rate Limit Exceeded**:
    - PandaDoc limits API requests based on your plan
