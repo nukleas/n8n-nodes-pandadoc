@@ -14,6 +14,18 @@ export const documentOperations: INodeProperties[] = [
 		},
 		options: [
 			{
+				name: 'Bulk Delete',
+				value: 'bulkDelete',
+				description: 'Permanently delete multiple documents',
+				action: 'Delete multiple documents',
+			},
+			{
+				name: 'Change Status',
+				value: 'changeStatus',
+				description: 'Manually set the status of a document',
+				action: 'Change a document status',
+			},
+			{
 				name: 'Create Document Link',
 				value: 'createDocumentLink',
 				description: 'Create a shareable link for a document',
@@ -66,6 +78,24 @@ export const documentOperations: INodeProperties[] = [
 				value: 'send',
 				description: 'Send a document',
 				action: 'Send a document',
+			},
+			{
+				name: 'Send Reminder',
+				value: 'sendReminder',
+				description: 'Send a reminder to document recipients',
+				action: 'Send a document reminder',
+			},
+			{
+				name: 'Transfer All Ownership',
+				value: 'transferAllOwnership',
+				description: "Transfer all of a member's documents to another member",
+				action: 'Transfer ownership of all documents',
+			},
+			{
+				name: 'Transfer Ownership',
+				value: 'transferOwnership',
+				description: 'Transfer a document to another workspace member',
+				action: 'Transfer document ownership',
 			},
 			{
 				name: 'Update',
@@ -445,7 +475,16 @@ export const documentFields: INodeProperties[] = [
 		displayOptions: {
 			show: {
 				resource: ['document'],
-				operation: ['get', 'delete', 'download', 'getStatus', 'send'],
+				operation: [
+					'changeStatus',
+					'delete',
+					'download',
+					'get',
+					'getStatus',
+					'send',
+					'sendReminder',
+					'transferOwnership',
+				],
 			},
 		},
 		modes: [
@@ -1022,5 +1061,270 @@ export const documentFields: INodeProperties[] = [
 			},
 		},
 		description: 'Name of the binary property to write the file to',
+	},
+
+	/* -------------------------------------------------------------------------- */
+	/*                           document:sendReminder                             */
+	/* -------------------------------------------------------------------------- */
+	{
+		displayName: 'Reminders',
+		name: 'remindersUi',
+		placeholder: 'Add Reminder',
+		type: 'fixedCollection',
+		typeOptions: {
+			multipleValues: true,
+		},
+		default: {},
+		required: true,
+		description: 'Recipients to remind. Recipient IDs are listed in the document details.',
+		displayOptions: {
+			show: {
+				resource: ['document'],
+				operation: ['sendReminder'],
+			},
+		},
+		options: [
+			{
+				name: 'remindersValues',
+				displayName: 'Reminder',
+				values: [
+					{
+						displayName: 'Email Message',
+						name: 'message',
+						type: 'string',
+						default: '',
+						description: 'Body of the reminder email, Markdown supported. Only used when sending by email.',
+					},
+					{
+						displayName: 'Email Subject',
+						name: 'subject',
+						type: 'string',
+						default: '',
+						description: 'Subject of the reminder email. Only used when sending by email.',
+					},
+					{
+						displayName: 'Recipient ID',
+						name: 'recipientId',
+						type: 'string',
+							required:	true,
+						default: '',
+						description: 'ID of the document recipient to remind',
+					},
+					{
+						displayName: 'Send by Email',
+						name: 'email',
+						type: 'boolean',
+						default: true,
+						description: 'Whether to send the reminder by email',
+					},
+					{
+						displayName: 'Send by SMS',
+						name: 'sms',
+						type: 'boolean',
+						default: false,
+						description: 'Whether to send the reminder by SMS',
+					},
+				],
+			},
+		],
+	},
+
+	/* -------------------------------------------------------------------------- */
+	/*                           document:changeStatus                             */
+	/* -------------------------------------------------------------------------- */
+	{
+		displayName: 'Status',
+		name: 'manualStatus',
+		type: 'options',
+		required: true,
+		default: 2,
+		description:
+			'Status to set. Which transitions are allowed depends on the current document status.',
+		displayOptions: {
+			show: {
+				resource: ['document'],
+				operation: ['changeStatus'],
+			},
+		},
+		options: [
+			{ name: 'Completed', value: 2 },
+			{ name: 'Declined', value: 12 },
+			{ name: 'Expired', value: 11 },
+			{
+				name: 'Paid',
+				value: 10,
+				description: 'Requires a connected payment app',
+			},
+		],
+	},
+	{
+		displayName: 'Options',
+		name: 'options',
+		type: 'collection',
+		placeholder: 'Add Option',
+		default: {},
+		displayOptions: {
+			show: {
+				resource: ['document'],
+				operation: ['changeStatus'],
+			},
+		},
+		options: [
+			{
+				displayName: 'Note',
+				name: 'note',
+				type: 'string',
+				default: '',
+				description: 'Private note about the status change',
+			},
+			{
+				displayName: 'Notify Recipients',
+				name: 'notify_recipients',
+				type: 'boolean',
+				default: false,
+				description: 'Whether to email all recipients about the status change',
+			},
+		],
+	},
+
+	/* -------------------------------------------------------------------------- */
+	/*                 document:transferOwnership, transferAllOwnership            */
+	/* -------------------------------------------------------------------------- */
+	{
+		displayName: 'New Owner',
+		name: 'membershipId',
+		type: 'resourceLocator',
+		default: { mode: 'list', value: '' },
+		required: true,
+		description: 'Workspace member who will own the document',
+		displayOptions: {
+			show: {
+				resource: ['document'],
+				operation: ['transferOwnership'],
+			},
+		},
+		modes: [
+			{
+				displayName: 'From List',
+				name: 'list',
+				type: 'list',
+				placeholder: 'Select a member',
+				typeOptions: {
+					searchListMethod: 'searchMembers',
+					searchable: true,
+				},
+			},
+			{
+				displayName: 'By Membership ID',
+				name: 'id',
+				type: 'string',
+				placeholder: 'e.g., RyMNXBjBPRppi56TfYBrXi',
+			},
+		],
+	},
+	{
+		displayName: 'Current Owner',
+		name: 'fromMembershipId',
+		type: 'resourceLocator',
+		default: { mode: 'list', value: '' },
+		required: true,
+		description: 'Workspace member whose documents will be transferred',
+		displayOptions: {
+			show: {
+				resource: ['document'],
+				operation: ['transferAllOwnership'],
+			},
+		},
+		modes: [
+			{
+				displayName: 'From List',
+				name: 'list',
+				type: 'list',
+				placeholder: 'Select a member',
+				typeOptions: {
+					searchListMethod: 'searchMembers',
+					searchable: true,
+				},
+			},
+			{
+				displayName: 'By Membership ID',
+				name: 'id',
+				type: 'string',
+				placeholder: 'e.g., RyMNXBjBPRppi56TfYBrXi',
+			},
+		],
+	},
+	{
+		displayName: 'New Owner',
+		name: 'toMembershipId',
+		type: 'resourceLocator',
+		default: { mode: 'list', value: '' },
+		required: true,
+		description: 'Workspace member who will own all of the documents',
+		displayOptions: {
+			show: {
+				resource: ['document'],
+				operation: ['transferAllOwnership'],
+			},
+		},
+		modes: [
+			{
+				displayName: 'From List',
+				name: 'list',
+				type: 'list',
+				placeholder: 'Select a member',
+				typeOptions: {
+					searchListMethod: 'searchMembers',
+					searchable: true,
+				},
+			},
+			{
+				displayName: 'By Membership ID',
+				name: 'id',
+				type: 'string',
+				placeholder: 'e.g., RyMNXBjBPRppi56TfYBrXi',
+			},
+		],
+	},
+	{
+		displayName: 'Options',
+		name: 'options',
+		type: 'collection',
+		placeholder: 'Add Option',
+		default: {},
+		displayOptions: {
+			show: {
+				resource: ['document'],
+				operation: ['transferOwnership', 'transferAllOwnership'],
+			},
+		},
+		options: [
+			{
+				displayName: 'Silent',
+				name: 'silent',
+				type: 'boolean',
+				default: false,
+				description: 'Whether to skip the email and in-app notifications sent to the new owner',
+			},
+		],
+	},
+
+	/* -------------------------------------------------------------------------- */
+	/*                            document:bulkDelete                              */
+	/* -------------------------------------------------------------------------- */
+	{
+		displayName: 'Document IDs',
+		name: 'documentIds',
+		type: 'string',
+		required: true,
+		default: '',
+		placeholder: 'e.g., fds89f6ds98fds89f, a1b2c3d4e5f6g7h8',
+		description: 'Comma-separated IDs of the documents to permanently delete',
+		displayOptions: {
+			show: {
+				resource: ['document'],
+				operation: ['bulkDelete'],
+			},
+		},
 	},
 ];

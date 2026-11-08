@@ -264,3 +264,100 @@ export async function createDocumentLink(this: IExecuteFunctions, i: number) {
 		body,
 	)) as IDataObject;
 }
+
+function getMembershipId(this: IExecuteFunctions, i: number, parameterName: string): string {
+	return this.getNodeParameter(parameterName, i, undefined, { extractValue: true }) as string;
+}
+
+export async function sendDocumentReminder(this: IExecuteFunctions, i: number) {
+	const documentId = getDocumentId.call(this, i);
+	const remindersUi = this.getNodeParameter('remindersUi', i, {}) as IDataObject;
+	const values = (remindersUi.remindersValues as IDataObject[] | undefined) ?? [];
+
+	if (values.length === 0) {
+		throw new NodeOperationError(this.getNode(), 'Add at least one recipient to remind', {
+			itemIndex: i,
+		});
+	}
+
+	const reminders = values.map((value) => {
+		const reminder: IDataObject = {
+			recipient_id: value.recipientId,
+			delivery_methods: { email: value.email === true, sms: value.sms === true },
+		};
+		const emailCustomization = compact({ subject: value.subject, message: value.message });
+		if (value.email === true && Object.keys(emailCustomization).length > 0) {
+			reminder.email_customization = emailCustomization;
+		}
+		return reminder;
+	});
+
+	await pandaDocApiRequest.call(this, 'POST', `/documents/${documentId}/send-reminder`, {
+		reminders,
+	});
+	return { success: true, documentId };
+}
+
+export async function changeDocumentStatus(this: IExecuteFunctions, i: number) {
+	const documentId = getDocumentId.call(this, i);
+	const status = this.getNodeParameter('manualStatus', i) as number;
+	const options = this.getNodeParameter('options', i, {}) as IDataObject;
+
+	const body = compact({
+		status,
+		note: options.note,
+		notify_recipients: options.notify_recipients,
+	});
+	await pandaDocApiRequest.call(this, 'PATCH', `/documents/${documentId}/status`, body);
+	return { success: true, documentId, status };
+}
+
+export async function transferDocumentOwnership(this: IExecuteFunctions, i: number) {
+	const documentId = getDocumentId.call(this, i);
+	const membershipId = getMembershipId.call(this, i, 'membershipId');
+	const options = this.getNodeParameter('options', i, {}) as IDataObject;
+
+	await pandaDocApiRequest.call(
+		this,
+		'PATCH',
+		`/documents/${documentId}/ownership`,
+		compact({ membership_id: membershipId, silent: options.silent }),
+	);
+	return { success: true, documentId, membershipId };
+}
+
+export async function transferAllDocumentsOwnership(this: IExecuteFunctions, i: number) {
+	const fromMembershipId = getMembershipId.call(this, i, 'fromMembershipId');
+	const toMembershipId = getMembershipId.call(this, i, 'toMembershipId');
+	const options = this.getNodeParameter('options', i, {}) as IDataObject;
+
+	await pandaDocApiRequest.call(
+		this,
+		'PATCH',
+		'/documents/ownership',
+		compact({
+			from_membership_id: fromMembershipId,
+			to_membership_id: toMembershipId,
+			silent: options.silent,
+		}),
+	);
+	return { success: true, fromMembershipId, toMembershipId };
+}
+
+export async function bulkDeleteDocuments(this: IExecuteFunctions, i: number) {
+	const documentIds = splitTags(this.getNodeParameter('documentIds', i) as string);
+
+	if (documentIds.length === 0) {
+		throw new NodeOperationError(this.getNode(), 'Specify at least one document ID', {
+			itemIndex: i,
+		});
+	}
+
+	await pandaDocApiRequest.call(
+		this,
+		'DELETE',
+		'/documents',
+		documentIds.map((id) => ({ id })),
+	);
+	return { success: true, deletedIds: documentIds };
+}

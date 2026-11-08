@@ -16,3 +16,11 @@ export async function getTemplate(this: IExecuteFunctions, i: number) {
 		`/templates/${templateId}/details`,
 	)) as IDataObject;
 }
+
+export async function deleteTemplate(this: IExecuteFunctions, i: number) {
+	const templateId = this.getNodeParameter('templateId', i, undefined, {
+		extractValue: true,
+	}) as string;
+	await pandaDocApiRequest.call(this, 'DELETE', `/templates/${templateId}`);
+	return { success: true, templateId };
+}

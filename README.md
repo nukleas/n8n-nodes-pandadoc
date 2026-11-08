@@ -84,11 +84,17 @@ The PandaDoc node allows you to work with several resources:
 - **Delete Document**: Remove a document from your account
 - **Update Document**: Modify document properties, metadata, or move to a folder
 - **Create Document Link**: Generate a sharing link for a document
+- **Send Reminder**: Remind specific recipients by email and/or SMS, with an optional custom subject and message
+- **Change Status**: Manually mark a document as Completed, Paid, Expired or Declined, with an optional private note
+- **Transfer Ownership**: Hand a document over to another workspace member
+- **Transfer All Ownership**: Move every document owned by one workspace member to another
+- **Bulk Delete**: Permanently delete several documents in one request
 
 #### Templates
 
 - **Get All Templates**: List available templates with filtering options
 - **Get Template Details**: Get detailed information about a template
+- **Delete Template**: Permanently delete a template
 
 #### Folders
 
