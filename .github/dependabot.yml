@@ -7,6 +7,13 @@ updates:
     groups:
       minor-and-patch:
         update-types: ["minor", "patch"]
+    ignore:
+      # The lint/build toolchain inside @n8n/node-cli pins these majors
+      # (ESLint 9, TypeScript 5.x). Bump them when @n8n/node-cli does.
+      - dependency-name: "eslint"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "typescript"
+        update-types: ["version-update:semver-major"]
 
   - package-ecosystem: "github-actions"
     directory: "/"
