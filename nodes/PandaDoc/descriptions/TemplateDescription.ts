@@ -13,6 +13,12 @@ export const templateOperations: INodeProperties[] = [
 		},
 		options: [
 			{
+				name: 'Delete',
+				value: 'delete',
+				description: 'Permanently delete a template',
+				action: 'Delete a template',
+			},
+			{
 				name: 'Get',
 				value: 'get',
 				description: 'Get a template',
@@ -115,7 +121,7 @@ export const templateFields: INodeProperties[] = [
 	},
 
 	/* -------------------------------------------------------------------------- */
-	/*                                template:get                                 */
+	/*                            template:get, delete                             */
 	/* -------------------------------------------------------------------------- */
 	{
 		displayName: 'Template',
@@ -152,10 +158,10 @@ export const templateFields: INodeProperties[] = [
 		],
 		displayOptions: {
 			show: {
-				operation: ['get'],
+				operation: ['get', 'delete'],
 				resource: ['template'],
 			},
 		},
-		description: 'Template to get',
+		description: 'The template to operate on',
 	},
 ];

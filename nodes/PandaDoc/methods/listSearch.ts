@@ -91,3 +91,25 @@ export async function searchFolders(
 		paginationToken,
 	);
 }
+
+export async function searchMembers(
+	this: ILoadOptionsFunctions,
+	filter?: string,
+): Promise<INodeListSearchResult> {
+	// The members endpoint is not paginated and has no search parameter, so filter locally.
+	const response = (await pandaDocApiRequest.call(this, 'GET', '/members')) as {
+		results?: IDataObject[];
+	};
+	const needle = filter?.toLowerCase();
+	const results = (response.results ?? [])
+		.map((member) => {
+			const fullName = [member.first_name, member.last_name].filter(Boolean).join(' ');
+			return {
+				name: fullName ? `${fullName} (${member.email})` : String(member.email),
+				value: member.membership_id as string,
+				description: member.role ? `Role: ${member.role}` : undefined,
+			};
+		})
+		.filter((item) => !needle || item.name.toLowerCase().includes(needle));
+	return { results };
+}

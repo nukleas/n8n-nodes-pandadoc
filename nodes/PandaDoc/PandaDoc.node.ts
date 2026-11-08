@@ -15,7 +15,12 @@ import { templateFields, templateOperations } from './descriptions/TemplateDescr
 import * as contactMethods from './methods/contactMethods';
 import * as documentMethods from './methods/documentMethods';
 import * as folderMethods from './methods/folderMethods';
-import { searchDocuments, searchFolders, searchTemplates } from './methods/listSearch';
+import {
+	searchDocuments,
+	searchFolders,
+	searchMembers,
+	searchTemplates,
+} from './methods/listSearch';
 import * as templateMethods from './methods/templateMethods';
 
 type OperationResult = IDataObject | IDataObject[] | INodeExecutionData[];
@@ -30,6 +35,8 @@ const operations: Record<string, Record<string, OperationHandler>> = {
 		update: contactMethods.updateContact,
 	},
 	document: {
+		bulkDelete: documentMethods.bulkDeleteDocuments,
+		changeStatus: documentMethods.changeDocumentStatus,
 		createDocumentLink: documentMethods.createDocumentLink,
 		createFromPdf: documentMethods.createDocumentFromPdf,
 		createFromTemplate: documentMethods.createDocumentFromTemplate,
@@ -39,6 +46,9 @@ const operations: Record<string, Record<string, OperationHandler>> = {
 		getAll: documentMethods.getAllDocuments,
 		getStatus: documentMethods.getDocumentStatus,
 		send: documentMethods.sendDocument,
+		sendReminder: documentMethods.sendDocumentReminder,
+		transferAllOwnership: documentMethods.transferAllDocumentsOwnership,
+		transferOwnership: documentMethods.transferDocumentOwnership,
 		update: documentMethods.updateDocument,
 	},
 	folder: {
@@ -47,6 +57,7 @@ const operations: Record<string, Record<string, OperationHandler>> = {
 		rename: folderMethods.renameFolder,
 	},
 	template: {
+		delete: templateMethods.deleteTemplate,
 		get: templateMethods.getTemplate,
 		getAll: templateMethods.getAllTemplates,
 	},
@@ -148,6 +159,7 @@ export class PandaDoc implements INodeType {
 		listSearch: {
 			searchDocuments,
 			searchFolders,
+			searchMembers,
 			searchTemplates,
 		},
 	};
